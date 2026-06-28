@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velocity Explorer - Physics Education Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 Velocity Explorer</h1>
+            <p class="subtitle">Interactive Physics Tool for Understanding Velocity and Projectile Motion</p>
+        </header>
+
+        <main>
+            <div class="content-grid">
+                <!-- Control Panel -->
+                <section class="control-panel">
+                    <h2>Parameters</h2>
+                    
+                    <div class="control-group">
+                        <label for="initialVelocity">Initial Velocity (m/s)</label>
+                        <div class="input-row">
+                            <input type="range" id="initialVelocity" class="slider" min="0" max="50" value="20" step="0.1">
+                            <input type="number" id="initialVelocityInput" class="number-input" min="0" max="50" value="20" step="0.1">
+                        </div>
+                        <span class="unit-display" id="velocityDisplay">20 m/s</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="angle">Launch Angle (degrees)</label>
+                        <div class="input-row">
+                            <input type="range" id="angle" class="slider" min="0" max="90" value="45" step="0.1">
+                            <input type="number" id="angleInput" class="number-input" min="0" max="90" value="45" step="0.1">
+                        </div>
+                        <span class="unit-display" id="angleDisplay">45°</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="gravity">Gravity (m/s²)</label>
+                        <div class="input-row">
+                            <input type="range" id="gravity" class="slider" min="1" max="30" value="9.8" step="0.1">
+                            <input type="number" id="gravityInput" class="number-input" min="1" max="30" value="9.8" step="0.1">
+                        </div>
+                        <span class="unit-display" id="gravityDisplay">9.8 m/s²</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="height">Initial Height (m)</label>
+                        <div class="input-row">
+                            <input type="range" id="height" class="slider" min="0" max="100" value="0" step="0.1">
+                            <input type="number" id="heightInput" class="number-input" min="0" max="100" value="0" step="0.1">
+                        </div>
+                        <span class="unit-display" id="heightDisplay">0 m</span>
+                    </div>
+
+                    <div class="preset-buttons">
+                        <button class="preset-btn" data-preset="earth">Earth</button>
+                        <button class="preset-btn" data-preset="moon">Moon</button>
+                        <button class="preset-btn" data-preset="mars">Mars</button>
+                    </div>
+
+                    <button id="resetBtn" class="reset-btn">Reset to Defaults</button>
+                </section>
+
+                <!-- Visualization & Results -->
+                <section class="visualization-panel">
+                    <div class="canvas-container">
+                        <canvas id="trajectoryCanvas" width="500" height="400"></canvas>
+                    </div>
+
+                    <div class="results-panel">
+                        <h2>Results</h2>
+                        <div class="result-grid">
+                            <div class="result-card">
+                                <div class="result-label">Horizontal Velocity</div>
+                                <div class="result-value" id="horizontalVelocity">0 m/s</div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-label">Vertical Velocity</div>
+                                <div class="result-value" id="verticalVelocity">0 m/s</div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-label">Max Height</div>
+                                <div class="result-value" id="maxHeight">0 m</div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-label">Range (Distance)</div>
+                                <div class="result-value" id="range">0 m</div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-label">Time of Flight</div>
+                                <div class="result-value" id="timeOfFlight">0 s</div>
+                            </div>
+                            <div class="result-card">
+                                <div class="result-label">Impact Velocity</div>
+                                <div class="result-value" id="impactVelocity">0 m/s</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-panel">
+                        <h3>💡 Formulas Used</h3>
+                        <div class="formula-list">
+                            <div class="formula">
+                                <strong>Horizontal Velocity:</strong> v<sub>x</sub> = v₀ × cos(θ)
+                            </div>
+                            <div class="formula">
+                                <strong>Vertical Velocity:</strong> v<sub>y</sub> = v₀ × sin(θ)
+                            </div>
+                            <div class="formula">
+                                <strong>Max Height:</strong> h<sub>max</sub> = h₀ + (v<sub>y</sub>² / 2g)
+                            </div>
+                            <div class="formula">
+                                <strong>Range:</strong> R = (v₀² × sin(2θ)) / g
+                            </div>
+                            <div class="formula">
+                                <strong>Time of Flight:</strong> t = (v<sub>y</sub> + √(v<sub>y</sub>² + 2gh₀)) / g
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Educational Section -->
+            <section class="education-section">
+                <h2>📚 Learn About Velocity</h2>
+                <div class="concepts">
+                    <div class="concept-card">
+                        <h3>What is Velocity?</h3>
+                        <p>Velocity is a vector quantity that describes both the speed and direction of an object's motion. Unlike speed, which is scalar, velocity changes when either magnitude or direction changes.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Projectile Motion</h3>
+                        <p>When an object is launched at an angle, it follows a curved path called a parabola. The motion can be separated into horizontal (constant) and vertical (accelerated) components.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Horizontal Component</h3>
+                        <p>The horizontal velocity remains constant throughout the flight (ignoring air resistance) because there's no horizontal force acting on the object.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Vertical Component</h3>
+                        <p>The vertical velocity changes due to gravity's acceleration. It decreases on the way up, becomes zero at maximum height, and increases (downward) on the way down.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Launch Angle Effect</h3>
+                        <p>A 45° angle provides the maximum range on level ground. Angles less than 45° travel less distance but land sooner. Angles greater than 45° reach higher but travel less horizontal distance.</p>
+                    </div>
+                    <div class="concept-card">
+                        <h3>Gravity's Role</h3>
+                        <p>Different celestial bodies have different gravitational accelerations. Try Earth (9.8 m/s²), Moon (1.62 m/s²), or Mars (3.7 m/s²) to see how it affects the trajectory!</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Velocity Explorer v1.0 | Educational Physics Tool</p>
+            <p>By <a href="https://github.com/zwh19921116-crypto" target="_blank">Physics Education Team</a></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

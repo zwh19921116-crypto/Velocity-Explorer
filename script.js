@@ -220,14 +220,29 @@ class VelocityExplorer {
     }
 
     drawTrajectory(v0, angleRad, g, h0, vx, vy, totalTime, maxHeight) {
-        // Clear canvas
-        this.ctx.fillStyle = '#f3f4f6';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        // Get device pixel ratio for crisp rendering
+        const dpr = window.devicePixelRatio || 1;
+        const displayWidth = this.canvas.clientWidth;
+        const displayHeight = this.canvas.clientHeight;
 
-        // Set up canvas
+        // Set canvas resolution
+        this.canvas.width = displayWidth * dpr;
+        this.canvas.height = displayHeight * dpr;
+
+        // Scale context to match device pixel ratio
+        this.ctx.scale(dpr, dpr);
+
+        // Clear canvas with gradient background
+        const gradient = this.ctx.createLinearGradient(0, 0, displayWidth, displayHeight);
+        gradient.addColorStop(0, '#0f172a');
+        gradient.addColorStop(1, '#1e293b');
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, displayWidth, displayHeight);
+
+        // Set up canvas dimensions (for drawing logic)
         const padding = 40;
-        const width = this.canvas.width - 2 * padding;
-        const height = this.canvas.height - 2 * padding;
+        const width = displayWidth - 2 * padding;
+        const height = displayHeight - 2 * padding;
 
         // Calculate scales
         const totalRange = vx * totalTime;
@@ -243,26 +258,28 @@ class VelocityExplorer {
         this.ctx.strokeStyle = '#8b7355';
         this.ctx.lineWidth = 3;
         this.ctx.beginPath();
-        this.ctx.moveTo(padding, this.canvas.height - padding);
-        this.ctx.lineTo(this.canvas.width - padding, this.canvas.height - padding);
+        this.ctx.moveTo(padding, displayHeight - padding);
+        this.ctx.lineTo(displayWidth - padding, displayHeight - padding);
         this.ctx.stroke();
 
         // Draw initial position marker
         if (h0 > 0) {
             this.ctx.fillStyle = '#fbbf24';
             this.ctx.beginPath();
-            this.ctx.arc(padding, this.canvas.height - padding - h0 * scaleY, 8, 0, 2 * Math.PI);
+            this.ctx.arc(padding, displayHeight - padding - h0 * scaleY, 8, 0, 2 * Math.PI);
             this.ctx.fill();
             
             // Label
             this.ctx.fillStyle = '#92400e';
-            this.ctx.font = '12px Arial';
-            this.ctx.fillText('Start', padding + 10, this.canvas.height - padding - h0 * scaleY);
+            this.ctx.font = 'bold 12px Arial';
+            this.ctx.fillText('Start', padding + 10, displayHeight - padding - h0 * scaleY);
         }
 
         // Draw trajectory
-        this.ctx.strokeStyle = '#2563eb';
-        this.ctx.lineWidth = 2.5;
+        this.ctx.strokeStyle = '#3b82f6';
+        this.ctx.lineWidth = 3.5;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
         this.ctx.beginPath();
 
         const steps = Math.ceil(totalTime * 100);
@@ -272,7 +289,7 @@ class VelocityExplorer {
             const y = h0 + vy * t - 0.5 * g * t * t;
 
             const canvasX = padding + x * scaleX;
-            const canvasY = this.canvas.height - padding - y * scaleY;
+            const canvasY = displayHeight - padding - y * scaleY;
 
             if (i === 0) {
                 this.ctx.moveTo(canvasX, canvasY);
@@ -288,14 +305,14 @@ class VelocityExplorer {
         const arrowY = vy * arrowScale;
         this.drawArrow(
             padding,
-            this.canvas.height - padding - h0 * scaleY,
+            displayHeight - padding - h0 * scaleY,
             padding + arrowX * scaleX * 3,
-            this.canvas.height - padding - h0 * scaleY - arrowY * scaleY * 3,
+            displayHeight - padding - h0 * scaleY - arrowY * scaleY * 3,
             '#ef4444'
         );
 
         // Draw launch angle arc
-        this.drawAngleArc(padding, this.canvas.height - padding, 50, angleRad);
+        this.drawAngleArc(padding, displayHeight - padding, 50, angleRad);
 
         // Draw impact point
         const impactX = vx * totalTime;
@@ -304,7 +321,7 @@ class VelocityExplorer {
         this.ctx.beginPath();
         this.ctx.arc(
             padding + impactX * scaleX,
-            this.canvas.height - padding,
+            displayHeight - padding,
             8,
             0,
             2 * Math.PI
@@ -317,7 +334,7 @@ class VelocityExplorer {
         this.ctx.beginPath();
         this.ctx.arc(
             padding + maxHeightX * scaleX,
-            this.canvas.height - padding - maxHeight * scaleY,
+            displayHeight - padding - maxHeight * scaleY,
             6,
             0,
             2 * Math.PI
@@ -332,35 +349,35 @@ class VelocityExplorer {
         // Vertical axis
         this.ctx.beginPath();
         this.ctx.moveTo(padding, padding);
-        this.ctx.lineTo(padding, this.canvas.height - padding);
+        this.ctx.lineTo(padding, displayHeight - padding);
         this.ctx.stroke();
 
         // Horizontal axis
         this.ctx.beginPath();
-        this.ctx.moveTo(padding, this.canvas.height - padding);
-        this.ctx.lineTo(this.canvas.width - padding, this.canvas.height - padding);
+        this.ctx.moveTo(padding, displayHeight - padding);
+        this.ctx.lineTo(displayWidth - padding, displayHeight - padding);
         this.ctx.stroke();
 
         this.ctx.setLineDash([]);
 
         // Draw labels
-        this.ctx.fillStyle = '#374151';
+        this.ctx.fillStyle = '#e2e8f0';
         this.ctx.font = 'bold 14px Arial';
-        this.ctx.fillText('Range (m)', this.canvas.width / 2 - 40, this.canvas.height - 10);
+        this.ctx.fillText('Range (m)', displayWidth / 2 - 40, displayHeight - 10);
         
         this.ctx.save();
-        this.ctx.translate(15, this.canvas.height / 2);
+        this.ctx.translate(15, displayHeight / 2);
         this.ctx.rotate(-Math.PI / 2);
         this.ctx.fillText('Height (m)', 0, 0);
         this.ctx.restore();
 
         // Draw legend
-        this.drawLegend();
+        this.drawLegend(displayWidth, displayHeight);
     }
 
     drawGrid(padding, width, height) {
-        this.ctx.strokeStyle = '#e5e7eb';
-        this.ctx.lineWidth = 1;
+        this.ctx.strokeStyle = 'rgba(51, 65, 85, 0.5)';
+        this.ctx.lineWidth = 0.5;
 
         // Vertical grid lines
         for (let i = 0; i <= 10; i++) {
@@ -382,12 +399,13 @@ class VelocityExplorer {
     }
 
     drawArrow(fromX, fromY, toX, toY, color) {
-        const headlen = 12;
+        const headlen = 15;
         const angle = Math.atan2(toY - fromY, toX - fromX);
 
         this.ctx.strokeStyle = color;
         this.ctx.fillStyle = color;
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = 2.5;
+        this.ctx.lineCap = 'round';
 
         // Draw line
         this.ctx.beginPath();
@@ -419,27 +437,27 @@ class VelocityExplorer {
         this.ctx.fillText(`${this.radiansToDegrees(angle).toFixed(0)}°`, labelX, labelY);
     }
 
-    drawLegend() {
-        const legendX = this.canvas.width - 180;
+    drawLegend(displayWidth, displayHeight) {
+        const legendX = displayWidth - 180;
         const legendY = 20;
 
         // Background
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
         this.ctx.fillRect(legendX - 10, legendY - 10, 170, 90);
 
         // Border
-        this.ctx.strokeStyle = '#d1d5db';
+        this.ctx.strokeStyle = '#334155';
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(legendX - 10, legendY - 10, 170, 90);
 
         // Trajectory line
-        this.ctx.strokeStyle = '#2563eb';
+        this.ctx.strokeStyle = '#3b82f6';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
         this.ctx.moveTo(legendX, legendY + 10);
         this.ctx.lineTo(legendX + 20, legendY + 10);
         this.ctx.stroke();
-        this.ctx.fillStyle = '#1f2937';
+        this.ctx.fillStyle = '#e2e8f0';
         this.ctx.font = '12px Arial';
         this.ctx.fillText('Trajectory', legendX + 30, legendY + 15);
 
@@ -458,7 +476,7 @@ class VelocityExplorer {
         this.ctx.beginPath();
         this.ctx.arc(legendX + 10, legendY + 60, 4, 0, 2 * Math.PI);
         this.ctx.fill();
-        this.ctx.fillStyle = '#1f2937';
+        this.ctx.fillStyle = '#e2e8f0';
         this.ctx.fillText('Max Height', legendX + 30, legendY + 65);
     }
 }

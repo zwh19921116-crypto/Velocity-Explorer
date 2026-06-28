@@ -232,11 +232,8 @@ class VelocityExplorer {
         // Scale context to match device pixel ratio
         this.ctx.scale(dpr, dpr);
 
-        // Clear canvas with gradient background
-        const gradient = this.ctx.createLinearGradient(0, 0, displayWidth, displayHeight);
-        gradient.addColorStop(0, '#0f172a');
-        gradient.addColorStop(1, '#1e293b');
-        this.ctx.fillStyle = gradient;
+        // Clear canvas with white background
+        this.ctx.fillStyle = '#ffffff';
         this.ctx.fillRect(0, 0, displayWidth, displayHeight);
 
         // Set up canvas dimensions (for drawing logic)
@@ -255,7 +252,7 @@ class VelocityExplorer {
         this.drawGrid(padding, width, height);
 
         // Draw ground
-        this.ctx.strokeStyle = '#8b7355';
+        this.ctx.strokeStyle = '#92400e';
         this.ctx.lineWidth = 3;
         this.ctx.beginPath();
         this.ctx.moveTo(padding, displayHeight - padding);
@@ -276,7 +273,7 @@ class VelocityExplorer {
         }
 
         // Draw trajectory
-        this.ctx.strokeStyle = '#3b82f6';
+        this.ctx.strokeStyle = '#2563eb';
         this.ctx.lineWidth = 3.5;
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
@@ -308,7 +305,7 @@ class VelocityExplorer {
             displayHeight - padding - h0 * scaleY,
             padding + arrowX * scaleX * 3,
             displayHeight - padding - h0 * scaleY - arrowY * scaleY * 3,
-            '#ef4444'
+            '#dc2626'
         );
 
         // Draw launch angle arc
@@ -317,7 +314,7 @@ class VelocityExplorer {
         // Draw impact point
         const impactX = vx * totalTime;
         const impactY = 0;
-        this.ctx.fillStyle = '#ef4444';
+        this.ctx.fillStyle = '#dc2626';
         this.ctx.beginPath();
         this.ctx.arc(
             padding + impactX * scaleX,
@@ -330,7 +327,7 @@ class VelocityExplorer {
 
         // Draw max height marker
         const maxHeightX = vx * (vy / g);
-        this.ctx.fillStyle = '#10b981';
+        this.ctx.fillStyle = '#059669';
         this.ctx.beginPath();
         this.ctx.arc(
             padding + maxHeightX * scaleX,
@@ -342,7 +339,7 @@ class VelocityExplorer {
         this.ctx.fill();
 
         // Draw axes
-        this.ctx.strokeStyle = '#6b7280';
+        this.ctx.strokeStyle = '#d1d5db';
         this.ctx.lineWidth = 1;
         this.ctx.setLineDash([5, 5]);
 
@@ -361,7 +358,7 @@ class VelocityExplorer {
         this.ctx.setLineDash([]);
 
         // Draw labels
-        this.ctx.fillStyle = '#e2e8f0';
+        this.ctx.fillStyle = '#374151';
         this.ctx.font = 'bold 14px Arial';
         this.ctx.fillText('Range (m)', displayWidth / 2 - 40, displayHeight - 10);
         
@@ -376,7 +373,7 @@ class VelocityExplorer {
     }
 
     drawGrid(padding, width, height) {
-        this.ctx.strokeStyle = 'rgba(51, 65, 85, 0.5)';
+        this.ctx.strokeStyle = 'rgba(209, 213, 219, 0.5)';
         this.ctx.lineWidth = 0.5;
 
         // Vertical grid lines
@@ -432,7 +429,7 @@ class VelocityExplorer {
         // Angle label
         const labelX = x + radius * 1.5 * Math.cos(angle / 2);
         const labelY = y - radius * 1.5 * Math.sin(angle / 2);
-        this.ctx.fillStyle = '#f59e0b';
+        this.ctx.fillStyle = '#d97706';
         this.ctx.font = '12px Arial';
         this.ctx.fillText(`${this.radiansToDegrees(angle).toFixed(0)}°`, labelX, labelY);
     }
@@ -442,28 +439,28 @@ class VelocityExplorer {
         const legendY = 20;
 
         // Background
-        this.ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
         this.ctx.fillRect(legendX - 10, legendY - 10, 170, 90);
 
         // Border
-        this.ctx.strokeStyle = '#334155';
+        this.ctx.strokeStyle = '#d1d5db';
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(legendX - 10, legendY - 10, 170, 90);
 
         // Trajectory line
-        this.ctx.strokeStyle = '#3b82f6';
+        this.ctx.strokeStyle = '#2563eb';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
         this.ctx.moveTo(legendX, legendY + 10);
         this.ctx.lineTo(legendX + 20, legendY + 10);
         this.ctx.stroke();
-        this.ctx.fillStyle = '#e2e8f0';
+        this.ctx.fillStyle = '#1f2937';
         this.ctx.font = '12px Arial';
         this.ctx.fillText('Trajectory', legendX + 30, legendY + 15);
 
         // Velocity vector
-        this.ctx.strokeStyle = '#ef4444';
-        this.ctx.fillStyle = '#ef4444';
+        this.ctx.strokeStyle = '#dc2626';
+        this.ctx.fillStyle = '#dc2626';
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
         this.ctx.moveTo(legendX, legendY + 35);
@@ -472,11 +469,11 @@ class VelocityExplorer {
         this.ctx.fillText('Velocity Vector', legendX + 30, legendY + 40);
 
         // Max height
-        this.ctx.fillStyle = '#10b981';
+        this.ctx.fillStyle = '#059669';
         this.ctx.beginPath();
         this.ctx.arc(legendX + 10, legendY + 60, 4, 0, 2 * Math.PI);
         this.ctx.fill();
-        this.ctx.fillStyle = '#e2e8f0';
+        this.ctx.fillStyle = '#1f2937';
         this.ctx.fillText('Max Height', legendX + 30, legendY + 65);
     }
 }

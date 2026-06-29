@@ -151,6 +151,12 @@ class VelocityExplorer {
                 this.closeFormulaSidebar();
             }
         });
+
+        // Keep canvas resolution and plot geometry correct when viewport size changes.
+        window.addEventListener('resize', () => {
+            clearTimeout(this.resizeTimer);
+            this.resizeTimer = setTimeout(() => this.calculate(), 120);
+        });
     }
 
     openFormulaSidebar() {

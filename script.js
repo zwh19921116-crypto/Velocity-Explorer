@@ -246,9 +246,6 @@ class VelocityExplorer {
         const maxHeightAboveStart = (vy * vy) / (2 * g);
         const maxHeightAboveGround = h0 + maxHeightAboveStart;
 
-        // Time to reach maximum height
-        const timeToMaxHeight = vy / g;
-
         // Total time of flight (solving: -0.5*g*t^2 + vy*t + h0 = 0)
         const discriminant = vy * vy + 2 * g * h0;
         const totalTime = (vy + Math.sqrt(discriminant)) / g;
@@ -290,10 +287,15 @@ class VelocityExplorer {
         this.ctx.fillStyle = '#ffffff';
         this.ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-        // Set up canvas dimensions (for drawing logic)
-        const padding = 40;
-        const width = displayWidth - 2 * padding;
-        const height = displayHeight - 2 * padding;
+        // Set up chart margins so axis titles/ticks stay outside the plot area.
+        const plotMargin = {
+            left: 74,
+            right: 36,
+            top: 30,
+            bottom: 54
+        };
+        const width = displayWidth - plotMargin.left - plotMargin.right;
+        const height = displayHeight - plotMargin.top - plotMargin.bottom;
 
         // Calculate scales
         const totalRange = vx * totalTime;
@@ -303,27 +305,27 @@ class VelocityExplorer {
         const scaleY = height / (maxHeightValue * 1.1 || 1);
 
         // Draw grid with axis labels so students can estimate values visually.
-        this.drawGrid(padding, width, height, displayWidth, displayHeight, totalRange, maxHeightValue);
+        this.drawGrid(plotMargin, width, height, displayWidth, displayHeight, totalRange, maxHeightValue);
 
         // Draw ground
         this.ctx.strokeStyle = '#92400e';
         this.ctx.lineWidth = 3;
         this.ctx.beginPath();
-        this.ctx.moveTo(padding, displayHeight - padding);
-        this.ctx.lineTo(displayWidth - padding, displayHeight - padding);
+        this.ctx.moveTo(plotMargin.left, displayHeight - plotMargin.bottom);
+        this.ctx.lineTo(displayWidth - plotMargin.right, displayHeight - plotMargin.bottom);
         this.ctx.stroke();
 
         // Draw initial position marker
         if (h0 > 0) {
             this.ctx.fillStyle = '#fbbf24';
             this.ctx.beginPath();
-            this.ctx.arc(padding, displayHeight - padding - h0 * scaleY, 8, 0, 2 * Math.PI);
+            this.ctx.arc(plotMargin.left, displayHeight - plotMargin.bottom - h0 * scaleY, 8, 0, 2 * Math.PI);
             this.ctx.fill();
             
             // Label
             this.ctx.fillStyle = '#92400e';
             this.ctx.font = 'bold 12px Arial';
-            this.ctx.fillText('Start', padding + 10, displayHeight - padding - h0 * scaleY);
+            this.ctx.fillText('Start', plotMargin.left + 10, displayHeight - plotMargin.bottom - h0 * scaleY);
         }
 
         // Draw trajectory
@@ -333,14 +335,14 @@ class VelocityExplorer {
         this.ctx.lineJoin = 'round';
         this.ctx.beginPath();
 
-        const steps = Math.ceil(totalTime * 100);
+        const steps = Math.max(1, Math.ceil(totalTime * 100));
         for (let i = 0; i <= steps; i++) {
             const t = (i / steps) * totalTime;
             const x = vx * t;
             const y = h0 + vy * t - 0.5 * g * t * t;
 
-            const canvasX = padding + x * scaleX;
-            const canvasY = displayHeight - padding - y * scaleY;
+            const canvasX = plotMargin.left + x * scaleX;
+            const canvasY = displayHeight - plotMargin.bottom - y * scaleY;
 
             if (i === 0) {
                 this.ctx.moveTo(canvasX, canvasY);
@@ -350,20 +352,24 @@ class VelocityExplorer {
         }
         this.ctx.stroke();
 
+        const launchX = plotMargin.left;
+        const launchY = displayHeight - plotMargin.bottom - h0 * scaleY;
+
         // Draw velocity vector at launch
-        const arrowScale = 0.15;
-        const arrowX = vx * arrowScale;
-        const arrowY = vy * arrowScale;
+        // Draw using a fixed pixel length to preserve on-screen launch angle.
+        const arrowLength = Math.max(42, Math.min(95, width * 0.18));
+        const arrowEndX = launchX + arrowLength * Math.cos(angleRad);
+        const arrowEndY = launchY - arrowLength * Math.sin(angleRad);
         this.drawArrow(
-            padding,
-            displayHeight - padding - h0 * scaleY,
-            padding + arrowX * scaleX * 3,
-            displayHeight - padding - h0 * scaleY - arrowY * scaleY * 3,
+            launchX,
+            launchY,
+            arrowEndX,
+            arrowEndY,
             '#dc2626'
         );
 
         // Draw launch angle arc
-        this.drawAngleArc(padding, displayHeight - padding, 50, angleRad);
+        this.drawAngleArc(launchX, launchY, 50, angleRad);
 
         // Draw impact point
         const impactX = vx * totalTime;
@@ -371,8 +377,8 @@ class VelocityExplorer {
         this.ctx.fillStyle = '#dc2626';
         this.ctx.beginPath();
         this.ctx.arc(
-            padding + impactX * scaleX,
-            displayHeight - padding,
+            plotMargin.left + impactX * scaleX,
+            displayHeight - plotMargin.bottom,
             8,
             0,
             2 * Math.PI
@@ -384,8 +390,8 @@ class VelocityExplorer {
         this.ctx.fillStyle = '#059669';
         this.ctx.beginPath();
         this.ctx.arc(
-            padding + maxHeightX * scaleX,
-            displayHeight - padding - maxHeight * scaleY,
+            plotMargin.left + maxHeightX * scaleX,
+            displayHeight - plotMargin.bottom - maxHeight * scaleY,
             6,
             0,
             2 * Math.PI
@@ -399,14 +405,14 @@ class VelocityExplorer {
 
         // Vertical axis
         this.ctx.beginPath();
-        this.ctx.moveTo(padding, padding);
-        this.ctx.lineTo(padding, displayHeight - padding);
+        this.ctx.moveTo(plotMargin.left, plotMargin.top);
+        this.ctx.lineTo(plotMargin.left, displayHeight - plotMargin.bottom);
         this.ctx.stroke();
 
         // Horizontal axis
         this.ctx.beginPath();
-        this.ctx.moveTo(padding, displayHeight - padding);
-        this.ctx.lineTo(displayWidth - padding, displayHeight - padding);
+        this.ctx.moveTo(plotMargin.left, displayHeight - plotMargin.bottom);
+        this.ctx.lineTo(displayWidth - plotMargin.right, displayHeight - plotMargin.bottom);
         this.ctx.stroke();
 
         this.ctx.setLineDash([]);
@@ -414,10 +420,10 @@ class VelocityExplorer {
         // Draw labels
         this.ctx.fillStyle = '#374151';
         this.ctx.font = 'bold 14px Arial';
-        this.ctx.fillText('Range (m)', displayWidth / 2 - 40, displayHeight - 10);
+        this.ctx.fillText('Range (m)', plotMargin.left + width / 2 - 36, displayHeight - 12);
         
         this.ctx.save();
-        this.ctx.translate(15, displayHeight / 2);
+        this.ctx.translate(22, plotMargin.top + height / 2);
         this.ctx.rotate(-Math.PI / 2);
         this.ctx.fillText('Height (m)', 0, 0);
         this.ctx.restore();
@@ -426,7 +432,7 @@ class VelocityExplorer {
         this.drawLegend(displayWidth, displayHeight);
     }
 
-    drawGrid(padding, width, height, displayWidth, displayHeight, maxRangeValue, maxHeightValue) {
+    drawGrid(plotMargin, width, height, displayWidth, displayHeight, maxRangeValue, maxHeightValue) {
         this.ctx.strokeStyle = 'rgba(209, 213, 219, 0.5)';
         this.ctx.lineWidth = 0.5;
         this.ctx.font = '11px Arial';
@@ -436,16 +442,16 @@ class VelocityExplorer {
 
         // Vertical grid lines
         for (let i = 0; i <= 10; i++) {
-            const x = padding + (width / 10) * i;
+            const x = plotMargin.left + (width / 10) * i;
             this.ctx.beginPath();
-            this.ctx.moveTo(x, padding);
-            this.ctx.lineTo(x, padding + height);
+            this.ctx.moveTo(x, plotMargin.top);
+            this.ctx.lineTo(x, plotMargin.top + height);
             this.ctx.stroke();
 
             // X-axis ticks (range values)
             if (i % 2 === 0) {
                 const rangeTick = (maxRangeValue * i) / 10;
-                this.ctx.fillText(`${rangeTick.toFixed(1)}`, x, displayHeight - padding + 8);
+                this.ctx.fillText(`${rangeTick.toFixed(1)}`, x, displayHeight - plotMargin.bottom + 8);
             }
         }
 
@@ -453,16 +459,16 @@ class VelocityExplorer {
         this.ctx.textAlign = 'right';
         this.ctx.textBaseline = 'middle';
         for (let i = 0; i <= 10; i++) {
-            const y = padding + (height / 10) * i;
+            const y = plotMargin.top + (height / 10) * i;
             this.ctx.beginPath();
-            this.ctx.moveTo(padding, y);
-            this.ctx.lineTo(padding + width, y);
+            this.ctx.moveTo(plotMargin.left, y);
+            this.ctx.lineTo(plotMargin.left + width, y);
             this.ctx.stroke();
 
             // Y-axis ticks (height values), displayed bottom-to-top.
             if (i % 2 === 0) {
                 const heightTick = (maxHeightValue * (10 - i)) / 10;
-                this.ctx.fillText(`${heightTick.toFixed(1)}`, padding - 8, y);
+                this.ctx.fillText(`${heightTick.toFixed(1)}`, plotMargin.left - 12, y);
             }
         }
 

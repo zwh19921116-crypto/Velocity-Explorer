@@ -302,8 +302,8 @@ class VelocityExplorer {
         const scaleX = width / (totalRange * 1.1 || 1);
         const scaleY = height / (maxHeightValue * 1.1 || 1);
 
-        // Draw grid
-        this.drawGrid(padding, width, height);
+        // Draw grid with axis labels so students can estimate values visually.
+        this.drawGrid(padding, width, height, displayWidth, displayHeight, totalRange, maxHeightValue);
 
         // Draw ground
         this.ctx.strokeStyle = '#92400e';
@@ -426,9 +426,13 @@ class VelocityExplorer {
         this.drawLegend(displayWidth, displayHeight);
     }
 
-    drawGrid(padding, width, height) {
+    drawGrid(padding, width, height, displayWidth, displayHeight, maxRangeValue, maxHeightValue) {
         this.ctx.strokeStyle = 'rgba(209, 213, 219, 0.5)';
         this.ctx.lineWidth = 0.5;
+        this.ctx.font = '11px Arial';
+        this.ctx.fillStyle = '#6b7280';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'top';
 
         // Vertical grid lines
         for (let i = 0; i <= 10; i++) {
@@ -437,16 +441,33 @@ class VelocityExplorer {
             this.ctx.moveTo(x, padding);
             this.ctx.lineTo(x, padding + height);
             this.ctx.stroke();
+
+            // X-axis ticks (range values)
+            if (i % 2 === 0) {
+                const rangeTick = (maxRangeValue * i) / 10;
+                this.ctx.fillText(`${rangeTick.toFixed(1)}`, x, displayHeight - padding + 8);
+            }
         }
 
         // Horizontal grid lines
+        this.ctx.textAlign = 'right';
+        this.ctx.textBaseline = 'middle';
         for (let i = 0; i <= 10; i++) {
             const y = padding + (height / 10) * i;
             this.ctx.beginPath();
             this.ctx.moveTo(padding, y);
             this.ctx.lineTo(padding + width, y);
             this.ctx.stroke();
+
+            // Y-axis ticks (height values), displayed bottom-to-top.
+            if (i % 2 === 0) {
+                const heightTick = (maxHeightValue * (10 - i)) / 10;
+                this.ctx.fillText(`${heightTick.toFixed(1)}`, padding - 8, y);
+            }
         }
+
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'alphabetic';
     }
 
     drawArrow(fromX, fromY, toX, toY, color) {
@@ -476,8 +497,18 @@ class VelocityExplorer {
     drawAngleArc(x, y, radius, angle) {
         this.ctx.strokeStyle = '#f59e0b';
         this.ctx.lineWidth = 2;
+
+        // Canvas Y increases downward, so we manually trace the arc with -sin(t)
+        // to show a positive launch angle curving upward from the horizontal axis.
         this.ctx.beginPath();
-        this.ctx.arc(x, y, radius, 0, angle);
+        this.ctx.moveTo(x + radius, y);
+        const steps = 48;
+        for (let i = 1; i <= steps; i++) {
+            const t = (angle * i) / steps;
+            const arcX = x + radius * Math.cos(t);
+            const arcY = y - radius * Math.sin(t);
+            this.ctx.lineTo(arcX, arcY);
+        }
         this.ctx.stroke();
 
         // Angle label

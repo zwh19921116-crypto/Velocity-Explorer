@@ -43,6 +43,12 @@ class VelocityExplorer {
         this.resetBtn = document.getElementById('resetBtn');
         this.presetBtns = document.querySelectorAll('.preset-btn');
 
+        // Formulas sidebar controls
+        this.formulaToggle = document.getElementById('formulaToggle');
+        this.formulaClose = document.getElementById('formulaClose');
+        this.formulaSidebar = document.getElementById('formulaSidebar');
+        this.formulaOverlay = document.getElementById('formulaOverlay');
+
         // Preset data
         this.presets = {
             earth: { gravity: 9.8, name: 'Earth' },
@@ -120,6 +126,53 @@ class VelocityExplorer {
                 this.applyPreset(preset);
             });
         });
+
+        // Formulas sidebar
+        if (this.formulaToggle && this.formulaSidebar && this.formulaOverlay) {
+            this.formulaToggle.addEventListener('click', () => {
+                if (this.formulaSidebar.classList.contains('open')) {
+                    this.closeFormulaSidebar();
+                    return;
+                }
+                this.openFormulaSidebar();
+            });
+        }
+
+        if (this.formulaClose) {
+            this.formulaClose.addEventListener('click', () => this.closeFormulaSidebar());
+        }
+
+        if (this.formulaOverlay) {
+            this.formulaOverlay.addEventListener('click', () => this.closeFormulaSidebar());
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeFormulaSidebar();
+            }
+        });
+    }
+
+    openFormulaSidebar() {
+        if (!this.formulaSidebar || !this.formulaOverlay || !this.formulaToggle) return;
+
+        this.formulaSidebar.classList.add('open');
+        this.formulaSidebar.setAttribute('aria-hidden', 'false');
+        this.formulaOverlay.hidden = false;
+        this.formulaToggle.setAttribute('aria-expanded', 'true');
+        this.formulaToggle.textContent = 'Hide Formulas';
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeFormulaSidebar() {
+        if (!this.formulaSidebar || !this.formulaOverlay || !this.formulaToggle) return;
+
+        this.formulaSidebar.classList.remove('open');
+        this.formulaSidebar.setAttribute('aria-hidden', 'true');
+        this.formulaOverlay.hidden = true;
+        this.formulaToggle.setAttribute('aria-expanded', 'false');
+        this.formulaToggle.textContent = 'Open Formulas';
+        document.body.style.overflow = '';
     }
 
     loadPresets() {
@@ -229,7 +282,8 @@ class VelocityExplorer {
         this.canvas.width = displayWidth * dpr;
         this.canvas.height = displayHeight * dpr;
 
-        // Scale context to match device pixel ratio
+        // Scale context to match device pixel ratio without stacking transforms.
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.scale(dpr, dpr);
 
         // Clear canvas with white background

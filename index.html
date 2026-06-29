@@ -4,20 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Velocity Explorer - Physics Education Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="ambient-shape ambient-shape-one" aria-hidden="true"></div>
+    <div class="ambient-shape ambient-shape-two" aria-hidden="true"></div>
+
     <div class="container">
-        <header>
-            <h1>🎓 Velocity Explorer</h1>
-            <p class="subtitle">Interactive Physics Tool for Understanding Velocity and Projectile Motion</p>
+        <header class="hero">
+            <div>
+                <p class="eyebrow">Physics Motion Studio</p>
+                <h1>Velocity Explorer</h1>
+                <p class="subtitle">Experiment with launch conditions and instantly see projectile behavior, outcomes, and key formulas.</p>
+            </div>
+            <div class="hero-actions">
+                <button id="formulaToggle" class="formula-toggle-btn" aria-expanded="false" aria-controls="formulaSidebar">Open Formulas</button>
+            </div>
         </header>
 
         <main>
             <div class="content-grid">
-                <!-- Control Panel -->
                 <section class="control-panel">
                     <h2>Parameters</h2>
+                    <p class="panel-intro">Use sliders or exact values to tune your launch setup.</p>
                     
                     <div class="control-group">
                         <label for="initialVelocity">Initial Velocity (m/s)</label>
@@ -64,9 +76,12 @@
                     <button id="resetBtn" class="reset-btn">Reset to Defaults</button>
                 </section>
 
-                <!-- Visualization & Results -->
                 <section class="visualization-panel">
                     <div class="canvas-container">
+                        <div class="panel-heading-row">
+                            <h2>Trajectory</h2>
+                            <span class="canvas-note">Live simulation</span>
+                        </div>
                         <canvas id="trajectoryCanvas" width="500" height="400"></canvas>
                     </div>
 
@@ -99,33 +114,11 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="info-panel">
-                        <h3>💡 Formulas Used</h3>
-                        <div class="formula-list">
-                            <div class="formula">
-                                <strong>Horizontal Velocity:</strong> v<sub>x</sub> = v₀ × cos(θ)
-                            </div>
-                            <div class="formula">
-                                <strong>Vertical Velocity:</strong> v<sub>y</sub> = v₀ × sin(θ)
-                            </div>
-                            <div class="formula">
-                                <strong>Max Height:</strong> h<sub>max</sub> = h₀ + (v<sub>y</sub>² / 2g)
-                            </div>
-                            <div class="formula">
-                                <strong>Range:</strong> R = (v₀² × sin(2θ)) / g
-                            </div>
-                            <div class="formula">
-                                <strong>Time of Flight:</strong> t = (v<sub>y</sub> + √(v<sub>y</sub>² + 2gh₀)) / g
-                            </div>
-                        </div>
-                    </div>
                 </section>
             </div>
 
-            <!-- Educational Section -->
             <section class="education-section">
-                <h2>📚 Learn About Velocity</h2>
+                <h2>Concept Snapshot</h2>
                 <div class="concepts">
                     <div class="concept-card">
                         <h3>What is Velocity?</h3>
@@ -160,6 +153,43 @@
             <p>By <a href="https://github.com/zwh19921116-crypto" target="_blank">Physics Education Team</a></p>
         </footer>
     </div>
+
+    <div id="formulaOverlay" class="formula-overlay" hidden></div>
+    <aside id="formulaSidebar" class="formula-sidebar" aria-hidden="true">
+        <div class="formula-sidebar-header">
+            <div>
+                <p class="formula-kicker">Reference</p>
+                <h3>Formulas Used</h3>
+            </div>
+            <button id="formulaClose" class="formula-close-btn" aria-label="Close formulas panel">Close</button>
+        </div>
+        <div class="formula-sidebar-body">
+            <div class="formula">
+                <strong>Horizontal Velocity</strong>
+                <p>v<sub>x</sub> = v<sub>0</sub> &times; cos(&theta;)</p>
+            </div>
+            <div class="formula">
+                <strong>Vertical Velocity</strong>
+                <p>v<sub>y</sub> = v<sub>0</sub> &times; sin(&theta;)</p>
+            </div>
+            <div class="formula">
+                <strong>Maximum Height</strong>
+                <p>h<sub>max</sub> = h<sub>0</sub> + v<sub>y</sub><sup>2</sup> / (2g)</p>
+            </div>
+            <div class="formula">
+                <strong>Range</strong>
+                <p>R = v<sub>x</sub> &times; t<sub>flight</sub></p>
+            </div>
+            <div class="formula">
+                <strong>Time of Flight</strong>
+                <p>t = (v<sub>y</sub> + &radic;(v<sub>y</sub><sup>2</sup> + 2gh<sub>0</sub>)) / g</p>
+            </div>
+            <div class="formula">
+                <strong>Impact Speed</strong>
+                <p>v = &radic;(v<sub>x</sub><sup>2</sup> + v<sub>y,impact</sub><sup>2</sup>)</p>
+            </div>
+        </div>
+    </aside>
 
     <script src="script.js"></script>
 </body>

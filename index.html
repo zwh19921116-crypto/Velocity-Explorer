@@ -172,7 +172,14 @@
                 <li>Use Play and Step buttons to inspect how velocity changes.</li>
                 <li>Read v(t) graph slope and zero crossing to understand direction changes.</li>
             </ol>
-            <button id="tourCloseBtn" class="anim-btn">Start Learning</button>
+            <button
+                id="tourCloseBtn"
+                class="anim-btn"
+                type="button"
+                onclick="document.getElementById('tourOverlay').hidden=true;try{localStorage.setItem('velocityExplorerTourSeen','true');}catch(e){}"
+            >
+                Start Learning
+            </button>
         </div>
     </div>
 

@@ -4,6 +4,7 @@ class VelocityExplorer {
         this.initializeEventListeners();
         this.loadPresets();
         this.calculate();
+        this.updateAnimationButtons();
     }
 
     initializeElements() {
@@ -26,12 +27,17 @@ class VelocityExplorer {
         this.substitutionText = document.getElementById('substitutionText');
         this.slopeInsight = document.getElementById('slopeInsight');
         this.zeroCrossingInsight = document.getElementById('zeroCrossingInsight');
+        this.playheadDisplay = document.getElementById('playheadDisplay');
 
+        this.motionCanvas = document.getElementById('motionCanvas');
         this.positionCanvas = document.getElementById('positionCanvas');
         this.velocityCanvas = document.getElementById('velocityCanvas');
         this.accelerationCanvas = document.getElementById('accelerationCanvas');
 
         this.resetBtn = document.getElementById('resetBtn');
+        this.playBtn = document.getElementById('playBtn');
+        this.pauseBtn = document.getElementById('pauseBtn');
+        this.replayBtn = document.getElementById('replayBtn');
         this.presetBtns = document.querySelectorAll('.preset-btn');
 
         this.formulaToggle = document.getElementById('formulaToggle');
@@ -44,6 +50,11 @@ class VelocityExplorer {
             speedup: { acceleration: 1.5 },
             braking: { acceleration: -1.5 }
         };
+
+        this.playheadTime = parseFloat(this.time.value);
+        this.isAnimating = false;
+        this.animationFrameId = null;
+        this.lastTimestamp = null;
     }
 
     initializeEventListeners() {
@@ -56,6 +67,18 @@ class VelocityExplorer {
         this.timeInput.addEventListener('input', (e) => this.syncFromInput('time', e.target.value));
 
         this.resetBtn.addEventListener('click', () => this.reset());
+
+        if (this.playBtn) {
+            this.playBtn.addEventListener('click', () => this.startAnimation(false));
+        }
+
+        if (this.pauseBtn) {
+            this.pauseBtn.addEventListener('click', () => this.pauseAnimation());
+        }
+
+        if (this.replayBtn) {
+            this.replayBtn.addEventListener('click', () => this.startAnimation(true));
+        }
 
         this.presetBtns.forEach((btn) => {
             btn.addEventListener('click', (e) => {
@@ -100,6 +123,8 @@ class VelocityExplorer {
 
     syncFromSlider(key, rawValue) {
         const value = parseFloat(rawValue);
+        this.pauseAnimation();
+
         if (key === 'initialVelocity') {
             this.initialVelocityInput.value = value;
         } else if (key === 'acceleration') {
@@ -113,6 +138,8 @@ class VelocityExplorer {
 
     syncFromInput(key, rawValue) {
         const value = parseFloat(rawValue) || 0;
+        this.pauseAnimation();
+
         if (key === 'initialVelocity') {
             const clamped = this.clamp(value, -20, 20);
             this.initialVelocity.value = clamped;
@@ -180,13 +207,84 @@ class VelocityExplorer {
         this.timeDisplay.textContent = `${parseFloat(this.time.value).toFixed(1)} s`;
     }
 
+    updateAnimationButtons() {
+        if (this.playBtn) {
+            this.playBtn.disabled = this.isAnimating;
+        }
+        if (this.pauseBtn) {
+            this.pauseBtn.disabled = !this.isAnimating;
+        }
+    }
+
+    startAnimation(fromStart) {
+        const targetTime = parseFloat(this.time.value);
+        if (targetTime <= 0) {
+            this.playheadTime = 0;
+            this.calculate();
+            return;
+        }
+
+        if (fromStart || this.playheadTime >= targetTime) {
+            this.playheadTime = 0;
+        }
+
+        this.isAnimating = true;
+        this.lastTimestamp = null;
+        this.updateAnimationButtons();
+
+        const tick = (timestamp) => {
+            if (!this.isAnimating) return;
+
+            if (this.lastTimestamp === null) {
+                this.lastTimestamp = timestamp;
+            }
+
+            const dt = (timestamp - this.lastTimestamp) / 1000;
+            this.lastTimestamp = timestamp;
+
+            this.playheadTime += dt;
+
+            if (this.playheadTime >= targetTime) {
+                this.playheadTime = targetTime;
+                this.isAnimating = false;
+            }
+
+            this.calculate();
+
+            if (this.isAnimating) {
+                this.animationFrameId = requestAnimationFrame(tick);
+            } else {
+                this.updateAnimationButtons();
+                this.animationFrameId = null;
+            }
+        };
+
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+        }
+        this.animationFrameId = requestAnimationFrame(tick);
+    }
+
+    pauseAnimation() {
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+        this.isAnimating = false;
+        this.lastTimestamp = null;
+        this.updateAnimationButtons();
+    }
+
     reset() {
+        this.pauseAnimation();
+
         this.initialVelocity.value = -0.5;
         this.initialVelocityInput.value = -0.5;
         this.acceleration.value = 0.5;
         this.accelerationInput.value = 0.5;
         this.time.value = 5;
         this.timeInput.value = 5;
+        this.playheadTime = 5;
 
         this.presetBtns.forEach((btn) => btn.classList.remove('active'));
         this.loadPresets();
@@ -197,7 +295,13 @@ class VelocityExplorer {
     calculate() {
         const vi = parseFloat(this.initialVelocity.value);
         const a = parseFloat(this.acceleration.value);
-        const t = parseFloat(this.time.value);
+        const targetTime = parseFloat(this.time.value);
+
+        if (!this.isAnimating) {
+            this.playheadTime = targetTime;
+        }
+
+        const t = this.playheadTime;
 
         const vf = vi + a * t;
         const x = vi * t + 0.5 * a * t * t;
@@ -209,6 +313,7 @@ class VelocityExplorer {
         this.displacement.textContent = `${x.toFixed(2)} m`;
         this.averageVelocity.textContent = `${vAvg.toFixed(2)} m/s`;
         this.substitutionText.textContent = `v_f = (${vi.toFixed(1)}) + (${a.toFixed(1)})(${t.toFixed(1)}) = ${vf.toFixed(2)} m/s`;
+        this.playheadDisplay.textContent = `t = ${t.toFixed(2)} s (target ${targetTime.toFixed(1)} s)`;
         this.directionState.textContent = vf > 0 ? 'Positive' : vf < 0 ? 'Negative' : 'At Rest';
         this.slopeInsight.textContent = a > 0
             ? 'Positive acceleration means v(t) slopes upward.'
@@ -219,7 +324,97 @@ class VelocityExplorer {
             ? `Velocity crosses zero at t = ${zeroCrossingTime.toFixed(2)} s.`
             : 'No direction change in this displayed time window.';
 
+        this.drawMotionStrip(vi, a, t, targetTime);
         this.drawAllGraphs(vi, a, t, zeroCrossingTime);
+    }
+
+    drawMotionStrip(vi, a, tCurrent, tMaxInput) {
+        const canvas = this.motionCanvas;
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const displayWidth = canvas.clientWidth;
+        const displayHeight = canvas.clientHeight;
+
+        canvas.width = displayWidth * dpr;
+        canvas.height = displayHeight * dpr;
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, displayWidth, displayHeight);
+
+        const margin = { left: 50, right: 28, top: 20, bottom: 22 };
+        const width = displayWidth - margin.left - margin.right;
+        const centerY = displayHeight * 0.62;
+
+        const xCurrent = vi * tCurrent + 0.5 * a * tCurrent * tCurrent;
+        const xMaxMag = Math.max(
+            20,
+            Math.abs(vi * tMaxInput + 0.5 * a * tMaxInput * tMaxInput),
+            Math.abs(vi * (tMaxInput * 0.5) + 0.5 * a * (tMaxInput * 0.5) * (tMaxInput * 0.5))
+        );
+
+        const mapX = (x) => margin.left + ((x + xMaxMag) / (2 * xMaxMag)) * width;
+
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(margin.left, centerY);
+        ctx.lineTo(displayWidth - margin.right, centerY);
+        ctx.stroke();
+
+        const zeroX = mapX(0);
+        ctx.strokeStyle = '#94a3b8';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(zeroX, margin.top);
+        ctx.lineTo(zeroX, centerY + 24);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        const objectX = mapX(xCurrent);
+        ctx.fillStyle = '#2563eb';
+        ctx.beginPath();
+        ctx.arc(objectX, centerY, 8, 0, 2 * Math.PI);
+        ctx.fill();
+
+        const vCurrent = vi + a * tCurrent;
+        const arrowLength = this.clamp(Math.abs(vCurrent) * 8, 18, 90);
+        const direction = vCurrent >= 0 ? 1 : -1;
+        const arrowStartX = objectX;
+        const arrowEndX = objectX + direction * arrowLength;
+        const arrowY = centerY - 20;
+
+        this.drawArrow(ctx, arrowStartX, arrowY, arrowEndX, arrowY, '#ef4444');
+
+        ctx.fillStyle = '#334155';
+        ctx.font = '12px Arial';
+        ctx.fillText(`x(t) = ${xCurrent.toFixed(2)} m`, 10, 16);
+        ctx.fillText(`v(t) = ${vCurrent.toFixed(2)} m/s`, 10, 34);
+        ctx.fillText('-x', margin.left - 16, centerY + 18);
+        ctx.fillText('+x', displayWidth - margin.right + 3, centerY + 18);
+    }
+
+    drawArrow(ctx, fromX, fromY, toX, toY, color) {
+        const headlen = 10;
+        const angle = Math.atan2(toY - fromY, toX - fromX);
+
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 2.4;
+
+        ctx.beginPath();
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+        ctx.closePath();
+        ctx.fill();
     }
 
     drawAllGraphs(vi, a, tCurrent, zeroCrossingTime) {

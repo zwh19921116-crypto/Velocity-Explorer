@@ -69,6 +69,18 @@
                     <h2>Equation</h2>
                     <p class="equation">v_f = v_i + at</p>
                     <p id="substitutionText" class="substitution">v_f = (-0.5) + (0.5)(5.0) = 2.00 m/s</p>
+                    <div class="animation-controls">
+                        <button id="playBtn" class="anim-btn">Play</button>
+                        <button id="pauseBtn" class="anim-btn">Pause</button>
+                        <button id="replayBtn" class="anim-btn">Replay</button>
+                    </div>
+                    <p id="playheadDisplay" class="playhead">t = 5.00 s</p>
+                </div>
+
+                <div class="motion-panel">
+                    <h2>Motion Strip</h2>
+                    <p class="motion-note">Dot position is x(t). Arrow shows velocity direction and relative speed.</p>
+                    <canvas id="motionCanvas" width="860" height="140"></canvas>
                 </div>
 
                 <div class="results-panel">

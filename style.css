@@ -135,6 +135,7 @@ body {
 .control-panel,
 .equation-panel,
 .results-panel,
+.motion-panel,
 .insight-panel,
 .chart-card {
     background: var(--card);
@@ -268,6 +269,7 @@ body {
 
 .equation-panel,
 .results-panel,
+.motion-panel,
 .insight-panel,
 .chart-card {
     padding: 0.95rem;
@@ -284,6 +286,49 @@ body {
     margin-top: 0.3rem;
     color: var(--ink-700);
     font-size: 0.9rem;
+}
+
+.animation-controls {
+    margin-top: 0.65rem;
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.anim-btn {
+    border: 1px solid var(--surface-300);
+    background: #ffffff;
+    color: var(--ink-700);
+    border-radius: 9px;
+    padding: 0.42rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.anim-btn:hover {
+    border-color: var(--sky-500);
+    color: var(--sky-600);
+}
+
+.anim-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.playhead {
+    margin-top: 0.45rem;
+    font-size: 0.8rem;
+    color: var(--ink-500);
+    font-weight: 600;
+}
+
+.motion-note {
+    margin-top: 0.25rem;
+    margin-bottom: 0.55rem;
+    font-size: 0.8rem;
+    color: var(--ink-500);
 }
 
 .result-grid {

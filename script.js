@@ -29,8 +29,6 @@ class VelocityExplorer {
         this.zeroCrossingInsight = document.getElementById('zeroCrossingInsight');
         this.playheadDisplay = document.getElementById('playheadDisplay');
         this.compareStatus = document.getElementById('compareStatus');
-        this.practiceQuestion = document.getElementById('practiceQuestion');
-        this.practiceFeedback = document.getElementById('practiceFeedback');
 
         this.motionCanvas = document.getElementById('motionCanvas');
         this.positionCanvas = document.getElementById('positionCanvas');
@@ -46,8 +44,6 @@ class VelocityExplorer {
         this.stepBigBtn = document.getElementById('stepBigBtn');
         this.captureRunBtn = document.getElementById('captureRunBtn');
         this.clearRunBtn = document.getElementById('clearRunBtn');
-        this.newQuestionBtn = document.getElementById('newQuestionBtn');
-        this.answerBtns = document.querySelectorAll('.answer-btn');
         this.presetBtns = document.querySelectorAll('.preset-btn');
 
         this.formulaToggle = document.getElementById('formulaToggle');
@@ -67,8 +63,6 @@ class VelocityExplorer {
         this.lastTimestamp = null;
         this.followTargetWhenIdle = true;
         this.compareSnapshot = null;
-        this.currentQuestion = null;
-        this.practiceCycleIndex = 0;
     }
 
     initializeEventListeners() {
@@ -112,16 +106,6 @@ class VelocityExplorer {
 
         if (this.clearRunBtn) {
             this.clearRunBtn.addEventListener('click', () => this.clearComparisonRun());
-        }
-
-        if (this.newQuestionBtn) {
-            this.newQuestionBtn.addEventListener('click', () => this.generatePracticeQuestion());
-        }
-
-        if (this.answerBtns && this.answerBtns.length > 0) {
-            this.answerBtns.forEach((btn) => {
-                btn.addEventListener('click', () => this.checkPracticeAnswer(btn.dataset.answer));
-            });
         }
 
         this.presetBtns.forEach((btn) => {
@@ -347,7 +331,6 @@ class VelocityExplorer {
         this.loadPresets();
         this.updateDisplay();
         this.calculate();
-        this.generatePracticeQuestion();
     }
 
     captureComparisonRun() {
@@ -364,90 +347,6 @@ class VelocityExplorer {
         this.compareSnapshot = null;
         this.compareStatus.textContent = 'No comparison run stored.';
         this.calculate();
-    }
-
-    signOf(value) {
-        const epsilon = 1e-9;
-        if (value > epsilon) return 'positive';
-        if (value < -epsilon) return 'negative';
-        return 'zero';
-    }
-
-    pickRandom(items) {
-        return items[Math.floor(Math.random() * items.length)];
-    }
-
-    buildScenarioQuestion(targetSign) {
-        const scenarioBank = {
-            positive: [
-                { prompt: 'For v_i = -1.0 m/s, a = +1.5 m/s², and t = 2.0 s, what is the sign of v_f?', answer: 'positive' },
-                { prompt: 'If acceleration is a = +2.0 m/s², what is the sign of acceleration?', answer: 'positive' },
-                { prompt: 'For v_i = -2.0 m/s and a = +3.0 m/s² at t = 1.0 s, what is the sign of v(t)?', answer: 'positive' }
-            ],
-            negative: [
-                { prompt: 'For v_i = +1.0 m/s, a = -2.0 m/s², and t = 2.0 s, what is the sign of v_f?', answer: 'negative' },
-                { prompt: 'If acceleration is a = -1.0 m/s², what is the sign of acceleration?', answer: 'negative' },
-                { prompt: 'For v_i = +2.0 m/s and a = -1.5 m/s² at t = 2.0 s, what is the sign of v(t)?', answer: 'negative' }
-            ],
-            zero: [
-                { prompt: 'For v_i = +4.0 m/s, a = -2.0 m/s², and t = 2.0 s, what is the sign of v_f?', answer: 'zero' },
-                { prompt: 'If acceleration is a = 0.0 m/s², what is the sign of acceleration?', answer: 'zero' },
-                { prompt: 'For v_i = -3.0 m/s and a = +1.0 m/s² at t = 3.0 s, what is the sign of v(t)?', answer: 'zero' }
-            ]
-        };
-
-        return this.pickRandom(scenarioBank[targetSign]);
-    }
-
-    generatePracticeQuestion() {
-        const vi = parseFloat(this.initialVelocity.value);
-        const a = parseFloat(this.acceleration.value);
-        const t = parseFloat(this.time.value);
-        const vf = vi + a * t;
-        const playheadVelocity = vi + a * this.playheadTime;
-
-        const targetSigns = ['positive', 'negative', 'zero'];
-        const targetSign = targetSigns[this.practiceCycleIndex % targetSigns.length];
-        this.practiceCycleIndex += 1;
-
-        const bank = [
-            {
-                prompt: `At t = ${t.toFixed(1)} s, what is the sign of final velocity v_f?`,
-                answer: this.signOf(vf)
-            },
-            {
-                prompt: 'What is the sign of acceleration a?',
-                answer: this.signOf(a)
-            },
-            {
-                prompt: `At the current playhead t = ${this.playheadTime.toFixed(1)} s, what is the sign of velocity v(t)?`,
-                answer: this.signOf(playheadVelocity)
-            }
-        ];
-
-        const matchingCurrentState = bank.filter((item) => item.answer === targetSign);
-        const selected = matchingCurrentState.length > 0 && Math.random() < 0.5
-            ? this.pickRandom(matchingCurrentState)
-            : this.buildScenarioQuestion(targetSign);
-
-        this.currentQuestion = selected;
-        this.practiceQuestion.textContent = selected.prompt;
-        this.practiceFeedback.textContent = 'Choose an answer: Positive, Negative, or Zero.';
-    }
-
-    checkPracticeAnswer(choice) {
-        if (!this.currentQuestion) {
-            this.practiceFeedback.textContent = 'Generate a question first.';
-            return;
-        }
-
-        if (choice === this.currentQuestion.answer) {
-            this.practiceFeedback.textContent = 'Correct. Great work!';
-            return;
-        }
-
-        const prettyAnswer = this.currentQuestion.answer[0].toUpperCase() + this.currentQuestion.answer.slice(1);
-        this.practiceFeedback.textContent = `Not yet. Correct answer: ${prettyAnswer}.`;
     }
 
     calculate() {
@@ -786,6 +685,5 @@ class VelocityExplorer {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new VelocityExplorer();
-    app.generatePracticeQuestion();
+    new VelocityExplorer();
 });

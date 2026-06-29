@@ -669,8 +669,9 @@ footer a:hover {
     }
 
     .chart-card canvas {
-        min-height: 102px;
-        height: 110px;
+        flex: 1 1 auto;
+        min-height: 132px;
+        height: 100%;
     }
 
     .equation {

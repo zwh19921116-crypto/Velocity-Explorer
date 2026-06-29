@@ -22,7 +22,10 @@ class VelocityExplorer {
         this.finalVelocity = document.getElementById('finalVelocity');
         this.displacement = document.getElementById('displacement');
         this.averageVelocity = document.getElementById('averageVelocity');
+        this.directionState = document.getElementById('directionState');
         this.substitutionText = document.getElementById('substitutionText');
+        this.slopeInsight = document.getElementById('slopeInsight');
+        this.zeroCrossingInsight = document.getElementById('zeroCrossingInsight');
 
         this.positionCanvas = document.getElementById('positionCanvas');
         this.velocityCanvas = document.getElementById('velocityCanvas');
@@ -30,6 +33,7 @@ class VelocityExplorer {
 
         this.resetBtn = document.getElementById('resetBtn');
         this.presetBtns = document.querySelectorAll('.preset-btn');
+        this.fixedScaleToggle = document.getElementById('fixedScaleToggle');
 
         this.formulaToggle = document.getElementById('formulaToggle');
         this.formulaClose = document.getElementById('formulaClose');
@@ -53,6 +57,10 @@ class VelocityExplorer {
         this.timeInput.addEventListener('input', (e) => this.syncFromInput('time', e.target.value));
 
         this.resetBtn.addEventListener('click', () => this.reset());
+
+        if (this.fixedScaleToggle) {
+            this.fixedScaleToggle.addEventListener('change', () => this.calculate());
+        }
 
         this.presetBtns.forEach((btn) => {
             btn.addEventListener('click', (e) => {
@@ -184,6 +192,9 @@ class VelocityExplorer {
         this.accelerationInput.value = 0.5;
         this.time.value = 5;
         this.timeInput.value = 5;
+        if (this.fixedScaleToggle) {
+            this.fixedScaleToggle.checked = false;
+        }
 
         this.presetBtns.forEach((btn) => btn.classList.remove('active'));
         this.loadPresets();
@@ -199,19 +210,31 @@ class VelocityExplorer {
         const vf = vi + a * t;
         const x = vi * t + 0.5 * a * t * t;
         const vAvg = (vi + vf) / 2;
+        const zeroCrossingTime = a === 0 ? null : (-vi / a);
+        const zeroCrossingInWindow = zeroCrossingTime !== null && zeroCrossingTime >= 0 && zeroCrossingTime <= t;
 
         this.finalVelocity.textContent = `${vf.toFixed(2)} m/s`;
         this.displacement.textContent = `${x.toFixed(2)} m`;
         this.averageVelocity.textContent = `${vAvg.toFixed(2)} m/s`;
         this.substitutionText.textContent = `v_f = (${vi.toFixed(1)}) + (${a.toFixed(1)})(${t.toFixed(1)}) = ${vf.toFixed(2)} m/s`;
+        this.directionState.textContent = vf > 0 ? 'Positive' : vf < 0 ? 'Negative' : 'At Rest';
+        this.slopeInsight.textContent = a > 0
+            ? 'Positive acceleration means v(t) slopes upward.'
+            : a < 0
+                ? 'Negative acceleration means v(t) slopes downward.'
+                : 'Zero acceleration means v(t) is flat.';
+        this.zeroCrossingInsight.textContent = zeroCrossingInWindow
+            ? `Velocity crosses zero at t = ${zeroCrossingTime.toFixed(2)} s.`
+            : 'No direction change in this displayed time window.';
 
-        this.drawAllGraphs(vi, a, t);
+        this.drawAllGraphs(vi, a, t, zeroCrossingTime);
     }
 
-    drawAllGraphs(vi, a, tCurrent) {
+    drawAllGraphs(vi, a, tCurrent, zeroCrossingTime) {
         const tMax = Math.max(1, tCurrent);
         const points = 90;
         const tSeries = Array.from({ length: points + 1 }, (_, i) => (i / points) * tMax);
+        const useFixedScale = this.fixedScaleToggle && this.fixedScaleToggle.checked;
 
         const xSeries = tSeries.map((t) => vi * t + 0.5 * a * t * t);
         const vSeries = tSeries.map((t) => vi + a * t);
@@ -224,7 +247,8 @@ class VelocityExplorer {
             tCurrent,
             series: xSeries,
             currentValue: vi * tCurrent + 0.5 * a * tCurrent * tCurrent,
-            tSeries
+            tSeries,
+            fixedRange: useFixedScale ? { min: -1000, max: 1000 } : null
         });
 
         this.drawGraph(this.velocityCanvas, {
@@ -234,7 +258,9 @@ class VelocityExplorer {
             tCurrent,
             series: vSeries,
             currentValue: vi + a * tCurrent,
-            tSeries
+            tSeries,
+            fixedRange: useFixedScale ? { min: -150, max: 150 } : null,
+            zeroCrossingTime
         });
 
         this.drawGraph(this.accelerationCanvas, {
@@ -245,7 +271,7 @@ class VelocityExplorer {
             series: aSeries,
             currentValue: a,
             tSeries,
-            fixedRange: { min: -10, max: 10 }
+            fixedRange: useFixedScale ? { min: -10, max: 10 } : null
         });
     }
 
@@ -314,6 +340,33 @@ class VelocityExplorer {
         ctx.beginPath();
         ctx.arc(pX, pY, 4, 0, 2 * Math.PI);
         ctx.fill();
+
+        if (
+            typeof config.zeroCrossingTime === 'number' &&
+            config.zeroCrossingTime >= 0 &&
+            config.zeroCrossingTime <= config.tMax &&
+            minV <= 0 &&
+            maxV >= 0
+        ) {
+            const zeroX = mapX(config.zeroCrossingTime);
+            const zeroY = mapY(0);
+
+            ctx.save();
+            ctx.strokeStyle = '#f59e0b';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(zeroX, margin.top);
+            ctx.lineTo(zeroX, margin.top + height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(zeroX, zeroY, 4, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.font = '11px Arial';
+            ctx.fillText('v=0', zeroX + 6, Math.max(margin.top + 12, zeroY - 8));
+            ctx.restore();
+        }
 
         ctx.fillStyle = '#334155';
         ctx.font = '12px Arial';

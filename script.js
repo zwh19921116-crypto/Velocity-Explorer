@@ -68,6 +68,7 @@ class VelocityExplorer {
         this.followTargetWhenIdle = true;
         this.compareSnapshot = null;
         this.currentQuestion = null;
+        this.practiceCycleIndex = 0;
     }
 
     initializeEventListeners() {
@@ -365,28 +366,70 @@ class VelocityExplorer {
         this.calculate();
     }
 
+    signOf(value) {
+        const epsilon = 1e-9;
+        if (value > epsilon) return 'positive';
+        if (value < -epsilon) return 'negative';
+        return 'zero';
+    }
+
+    pickRandom(items) {
+        return items[Math.floor(Math.random() * items.length)];
+    }
+
+    buildScenarioQuestion(targetSign) {
+        const scenarioBank = {
+            positive: [
+                { prompt: 'For v_i = -1.0 m/s, a = +1.5 m/s², and t = 2.0 s, what is the sign of v_f?', answer: 'positive' },
+                { prompt: 'If acceleration is a = +2.0 m/s², what is the sign of acceleration?', answer: 'positive' },
+                { prompt: 'For v_i = -2.0 m/s and a = +3.0 m/s² at t = 1.0 s, what is the sign of v(t)?', answer: 'positive' }
+            ],
+            negative: [
+                { prompt: 'For v_i = +1.0 m/s, a = -2.0 m/s², and t = 2.0 s, what is the sign of v_f?', answer: 'negative' },
+                { prompt: 'If acceleration is a = -1.0 m/s², what is the sign of acceleration?', answer: 'negative' },
+                { prompt: 'For v_i = +2.0 m/s and a = -1.5 m/s² at t = 2.0 s, what is the sign of v(t)?', answer: 'negative' }
+            ],
+            zero: [
+                { prompt: 'For v_i = +4.0 m/s, a = -2.0 m/s², and t = 2.0 s, what is the sign of v_f?', answer: 'zero' },
+                { prompt: 'If acceleration is a = 0.0 m/s², what is the sign of acceleration?', answer: 'zero' },
+                { prompt: 'For v_i = -3.0 m/s and a = +1.0 m/s² at t = 3.0 s, what is the sign of v(t)?', answer: 'zero' }
+            ]
+        };
+
+        return this.pickRandom(scenarioBank[targetSign]);
+    }
+
     generatePracticeQuestion() {
         const vi = parseFloat(this.initialVelocity.value);
         const a = parseFloat(this.acceleration.value);
         const t = parseFloat(this.time.value);
         const vf = vi + a * t;
+        const playheadVelocity = vi + a * this.playheadTime;
+
+        const targetSigns = ['positive', 'negative', 'zero'];
+        const targetSign = targetSigns[this.practiceCycleIndex % targetSigns.length];
+        this.practiceCycleIndex += 1;
 
         const bank = [
             {
                 prompt: `At t = ${t.toFixed(1)} s, what is the sign of final velocity v_f?`,
-                answer: vf > 0 ? 'positive' : vf < 0 ? 'negative' : 'zero'
+                answer: this.signOf(vf)
             },
             {
                 prompt: 'What is the sign of acceleration a?',
-                answer: a > 0 ? 'positive' : a < 0 ? 'negative' : 'zero'
+                answer: this.signOf(a)
             },
             {
                 prompt: `At the current playhead t = ${this.playheadTime.toFixed(1)} s, what is the sign of velocity v(t)?`,
-                answer: (vi + a * this.playheadTime) > 0 ? 'positive' : (vi + a * this.playheadTime) < 0 ? 'negative' : 'zero'
+                answer: this.signOf(playheadVelocity)
             }
         ];
 
-        const selected = bank[Math.floor(Math.random() * bank.length)];
+        const matchingCurrentState = bank.filter((item) => item.answer === targetSign);
+        const selected = matchingCurrentState.length > 0 && Math.random() < 0.5
+            ? this.pickRandom(matchingCurrentState)
+            : this.buildScenarioQuestion(targetSign);
+
         this.currentQuestion = selected;
         this.practiceQuestion.textContent = selected.prompt;
         this.practiceFeedback.textContent = 'Choose an answer: Positive, Negative, or Zero.';
@@ -403,7 +446,8 @@ class VelocityExplorer {
             return;
         }
 
-        this.practiceFeedback.textContent = `Not yet. Correct answer: ${this.currentQuestion.answer}.`;
+        const prettyAnswer = this.currentQuestion.answer[0].toUpperCase() + this.currentQuestion.answer.slice(1);
+        this.practiceFeedback.textContent = `Not yet. Correct answer: ${prettyAnswer}.`;
     }
 
     calculate() {

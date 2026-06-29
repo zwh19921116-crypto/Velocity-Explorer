@@ -54,8 +54,6 @@ class VelocityExplorer {
         this.formulaClose = document.getElementById('formulaClose');
         this.formulaSidebar = document.getElementById('formulaSidebar');
         this.formulaOverlay = document.getElementById('formulaOverlay');
-        this.tourOverlay = document.getElementById('tourOverlay');
-        this.tourCloseBtn = document.getElementById('tourCloseBtn');
 
         this.presets = {
             uniform: { acceleration: 0.0 },
@@ -148,10 +146,6 @@ class VelocityExplorer {
 
         if (this.formulaOverlay) {
             this.formulaOverlay.addEventListener('click', () => this.closeFormulaSidebar());
-        }
-
-        if (this.tourCloseBtn) {
-            this.tourCloseBtn.addEventListener('click', () => this.closeTour());
         }
 
         document.addEventListener('keydown', (e) => {
@@ -410,20 +404,6 @@ class VelocityExplorer {
         }
 
         this.practiceFeedback.textContent = `Not yet. Correct answer: ${this.currentQuestion.answer}.`;
-    }
-
-    showTourIfNeeded() {
-        const viewed = localStorage.getItem('velocityExplorerTourSeen');
-        if (viewed) {
-            this.tourOverlay.hidden = true;
-            return;
-        }
-        this.tourOverlay.hidden = false;
-    }
-
-    closeTour() {
-        this.tourOverlay.hidden = true;
-        localStorage.setItem('velocityExplorerTourSeen', 'true');
     }
 
     calculate() {
@@ -764,5 +744,4 @@ class VelocityExplorer {
 document.addEventListener('DOMContentLoaded', () => {
     const app = new VelocityExplorer();
     app.generatePracticeQuestion();
-    app.showTourIfNeeded();
 });

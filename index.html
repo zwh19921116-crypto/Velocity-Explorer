@@ -18,7 +18,6 @@
             <div>
                 <p class="eyebrow">Physics Kinematics Studio</p>
                 <h1>Velocity Explorer</h1>
-                <p class="subtitle">Explore 1D motion with the core equation v_f = v_i + at and see how position, velocity, and acceleration evolve over time.</p>
             </div>
             <button id="formulaToggle" class="formula-toggle-btn" aria-expanded="false" aria-controls="formulaSidebar">Open Formulas</button>
         </header>
@@ -78,6 +77,20 @@
                         <button id="stepBigBtn" class="anim-btn">+1.0 s</button>
                     </div>
                     <p id="playheadDisplay" class="playhead">t = 5.00 s</p>
+
+                    <div class="equation-insights">
+                        <h3>Velocity Insights</h3>
+                        <div class="insight-grid">
+                            <div class="insight-card">
+                                <div class="insight-label">Slope Meaning</div>
+                                <div class="insight-value" id="slopeInsight">Positive acceleration means v(t) slopes upward.</div>
+                            </div>
+                            <div class="insight-card">
+                                <div class="insight-label">Zero Crossing</div>
+                                <div class="insight-value" id="zeroCrossingInsight">No direction change in this time window.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="motion-panel">
@@ -109,20 +122,6 @@
                         <div class="result-card">
                             <div class="result-label">Direction</div>
                             <div class="result-value" id="directionState">Positive</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="insight-panel">
-                    <h2>Velocity Insights</h2>
-                    <div class="insight-grid">
-                        <div class="insight-card">
-                            <div class="insight-label">Slope Meaning</div>
-                            <div class="insight-value" id="slopeInsight">Positive acceleration means v(t) slopes upward.</div>
-                        </div>
-                        <div class="insight-card">
-                            <div class="insight-label">Zero Crossing</div>
-                            <div class="insight-value" id="zeroCrossingInsight">No direction change in this time window.</div>
                         </div>
                     </div>
                 </div>

@@ -131,7 +131,6 @@ body {
 .equation-panel,
 .results-panel,
 .motion-panel,
-.insight-panel,
 .chart-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -142,7 +141,6 @@ body {
 .equation-panel,
 .results-panel,
 .motion-panel,
-.insight-panel,
 .chart-card {
     border-color: #d1deef;
     box-shadow: 0 10px 28px rgba(14, 36, 68, 0.09);
@@ -162,8 +160,7 @@ body {
     font-size: 1rem;
 }
 
-.motion-panel h2,
-.insight-panel h2 {
+.motion-panel h2 {
     font-family: 'Manrope', sans-serif;
     font-size: 1rem;
 }
@@ -277,12 +274,40 @@ body {
     gap: 0.9rem;
 }
 
+.equation-panel {
+    grid-area: equation;
+}
+
+.results-panel {
+    grid-area: results;
+}
+
+.motion-panel {
+    grid-area: motion;
+}
+
+.chart-stack {
+    grid-area: charts;
+}
+
 .equation-panel,
 .results-panel,
 .motion-panel,
-.insight-panel,
 .chart-card {
     padding: 0.95rem;
+}
+
+.equation-insights {
+    margin-top: 0.65rem;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--surface-300);
+}
+
+.equation-insights h3 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.88rem;
+    color: var(--ink-700);
+    margin-bottom: 0.42rem;
 }
 
 .equation {
@@ -433,6 +458,11 @@ canvas {
     display: block;
 }
 
+#motionCanvas {
+    height: 132px;
+    min-height: 132px;
+}
+
 footer {
     margin-top: 1rem;
     text-align: center;
@@ -542,13 +572,172 @@ footer a:hover {
     font-size: 0.8rem;
 }
 
-@media (max-width: 1080px) {
+@media (min-width: 900px) {
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .container {
+        width: min(1360px, calc(100% - 1.2rem));
+        height: calc(100vh - 0.9rem);
+        margin: 0.45rem auto;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: 0.55rem;
+    }
+
+    .hero {
+        padding: 0.85rem 1rem;
+        align-items: center;
+    }
+
+    .hero h1 {
+        font-size: clamp(1.28rem, 1.75vw, 1.65rem);
+        margin-bottom: 0.2rem;
+    }
+
+    .subtitle {
+        font-size: 0.82rem;
+    }
+
+    .layout {
+        margin-top: 0;
+        min-height: 0;
+        gap: 0.65rem;
+        grid-template-columns: 280px minmax(0, 1fr) minmax(0, 1.06fr);
+        align-items: stretch;
+    }
+
+    .control-panel {
+        grid-column: 1;
+        position: static;
+        height: 100%;
+        padding: 0.75rem;
+        overflow: auto;
+    }
+
+    .control-group {
+        margin-bottom: 0.65rem;
+    }
+
+    .panel-intro {
+        margin-bottom: 0.65rem;
+    }
+
+    .visual-panel {
+        grid-column: 2 / 4;
+        min-height: 0;
+        gap: 0.65rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            'equation charts'
+            'motion charts';
+        grid-template-rows: auto minmax(0, 1fr);
+        overflow: hidden;
+    }
+
+    .results-panel {
+        display: none;
+    }
+
+    .equation-panel,
+    .results-panel,
+    .motion-panel,
+    .chart-card {
+        padding: 0.72rem;
+    }
+
+    .chart-stack {
+        min-height: 0;
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(3, minmax(0, 1fr));
+        gap: 0.6rem;
+    }
+
+    .chart-card {
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-card h3 {
+        margin-bottom: 0.38rem;
+    }
+
+    .chart-card canvas {
+        min-height: 102px;
+        height: 110px;
+    }
+
+    .equation {
+        font-size: 1.18rem;
+    }
+
+    .substitution {
+        font-size: 0.82rem;
+    }
+
+    .playhead,
+    .motion-note {
+        font-size: 0.74rem;
+    }
+
+    #motionCanvas {
+        min-height: 112px;
+        height: 112px;
+    }
+
+    .result-grid {
+        gap: 0.45rem;
+    }
+
+    .result-card {
+        padding: 0.46rem;
+    }
+
+    .result-value {
+        font-size: 0.88rem;
+    }
+
+    .equation-insights h3 {
+        font-size: 0.8rem;
+        margin-bottom: 0.32rem;
+    }
+
+    .insight-value {
+        font-size: 0.76rem;
+    }
+
+    footer {
+        margin-top: 0;
+        padding: 0.2rem 0.2rem 0.1rem;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 899px) {
+    html,
+    body {
+        overflow: auto;
+        height: auto;
+    }
+
+    .container {
+        height: auto;
+    }
+
     .layout {
         grid-template-columns: 1fr;
     }
 
     .control-panel {
         position: static;
+    }
+
+    .results-panel {
+        display: block;
     }
 }
 

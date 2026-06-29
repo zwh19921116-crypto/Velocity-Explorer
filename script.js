@@ -33,7 +33,6 @@ class VelocityExplorer {
 
         this.resetBtn = document.getElementById('resetBtn');
         this.presetBtns = document.querySelectorAll('.preset-btn');
-        this.fixedScaleToggle = document.getElementById('fixedScaleToggle');
 
         this.formulaToggle = document.getElementById('formulaToggle');
         this.formulaClose = document.getElementById('formulaClose');
@@ -57,10 +56,6 @@ class VelocityExplorer {
         this.timeInput.addEventListener('input', (e) => this.syncFromInput('time', e.target.value));
 
         this.resetBtn.addEventListener('click', () => this.reset());
-
-        if (this.fixedScaleToggle) {
-            this.fixedScaleToggle.addEventListener('change', () => this.calculate());
-        }
 
         this.presetBtns.forEach((btn) => {
             btn.addEventListener('click', (e) => {
@@ -192,9 +187,6 @@ class VelocityExplorer {
         this.accelerationInput.value = 0.5;
         this.time.value = 5;
         this.timeInput.value = 5;
-        if (this.fixedScaleToggle) {
-            this.fixedScaleToggle.checked = false;
-        }
 
         this.presetBtns.forEach((btn) => btn.classList.remove('active'));
         this.loadPresets();
@@ -234,7 +226,6 @@ class VelocityExplorer {
         const tMax = Math.max(1, tCurrent);
         const points = 90;
         const tSeries = Array.from({ length: points + 1 }, (_, i) => (i / points) * tMax);
-        const useFixedScale = this.fixedScaleToggle && this.fixedScaleToggle.checked;
 
         const xSeries = tSeries.map((t) => vi * t + 0.5 * a * t * t);
         const vSeries = tSeries.map((t) => vi + a * t);
@@ -248,7 +239,7 @@ class VelocityExplorer {
             series: xSeries,
             currentValue: vi * tCurrent + 0.5 * a * tCurrent * tCurrent,
             tSeries,
-            fixedRange: useFixedScale ? { min: -1000, max: 1000 } : null
+            fixedRange: { min: -1000, max: 1000 }
         });
 
         this.drawGraph(this.velocityCanvas, {
@@ -259,7 +250,7 @@ class VelocityExplorer {
             series: vSeries,
             currentValue: vi + a * tCurrent,
             tSeries,
-            fixedRange: useFixedScale ? { min: -150, max: 150 } : null,
+            fixedRange: { min: -150, max: 150 },
             zeroCrossingTime
         });
 
@@ -271,7 +262,7 @@ class VelocityExplorer {
             series: aSeries,
             currentValue: a,
             tSeries,
-            fixedRange: useFixedScale ? { min: -10, max: 10 } : null
+            fixedRange: { min: -10, max: 10 }
         });
     }
 

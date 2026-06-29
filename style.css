@@ -1,3 +1,38 @@
+:root {
+    --bg: #edf3fb;
+    --card: #ffffff;
+    --border: #d6e1f1;
+    --surface-100: #f4f8ff;
+    --surface-300: #cfdbec;
+    --ink-700: #1f2f46;
+    --ink-500: #5f7290;
+    --sky-500: #2f80ff;
+    --sky-600: #1d62d1;
+    --radius-md: 14px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 8px 24px rgba(16, 39, 74, 0.08);
+    --shadow-md: 0 18px 42px rgba(8, 25, 53, 0.22);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink-700);
+    background:
+        radial-gradient(circle at 10% 8%, rgba(110, 170, 255, 0.2), transparent 38%),
+        radial-gradient(circle at 92% 86%, rgba(26, 183, 155, 0.14), transparent 35%),
+        var(--bg);
+    line-height: 1.45;
 }
 
 .ambient {
@@ -105,6 +140,16 @@
     box-shadow: var(--shadow-sm);
 }
 
+.equation-panel,
+.results-panel,
+.motion-panel,
+.insight-panel,
+.practice-panel,
+.chart-card {
+    border-color: #d1deef;
+    box-shadow: 0 10px 28px rgba(14, 36, 68, 0.09);
+}
+
 .control-panel {
     padding: 1rem;
     height: fit-content;
@@ -115,6 +160,13 @@
 .control-panel h2,
 .equation-panel h2,
 .results-panel h2 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1rem;
+}
+
+.motion-panel h2,
+.insight-panel h2,
+.practice-panel h2 {
     font-family: 'Manrope', sans-serif;
     font-size: 1rem;
 }
@@ -417,7 +469,7 @@ canvas {
     width: 100%;
     min-height: 180px;
     border-radius: 10px;
-    border: 1px solid var(--surface-300);
+    border: 1px solid #c8d7eb;
     background: #ffffff;
     display: block;
 }
@@ -446,46 +498,6 @@ footer a:hover {
     background: rgba(8, 15, 30, 0.45);
     backdrop-filter: blur(2px);
     z-index: 45;
-}
-
-.tour-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(7, 15, 30, 0.56);
-    z-index: 60;
-    display: grid;
-    place-items: center;
-    padding: 1rem;
-}
-
-.tour-card {
-    width: min(540px, 100%);
-    background: #ffffff;
-    border: 1px solid var(--surface-300);
-    border-radius: 14px;
-    padding: 1rem;
-    box-shadow: var(--shadow-md);
-}
-
-.tour-card h2 {
-    font-family: 'Manrope', sans-serif;
-    font-size: 1.12rem;
-    margin-bottom: 0.35rem;
-}
-
-.tour-card p {
-    color: var(--ink-700);
-    font-size: 0.88rem;
-}
-
-.tour-card ol {
-    margin: 0.6rem 0 0.75rem 1rem;
-    color: var(--ink-700);
-    font-size: 0.86rem;
-}
-
-.tour-card li {
-    margin-bottom: 0.25rem;
 }
 
 .formula-sidebar {

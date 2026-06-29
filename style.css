@@ -6,17 +6,17 @@
 
 :root {
     --ink-900: #0b1324;
-    --ink-700: #20304d;
-    --ink-500: #475569;
+    --ink-700: #22314e;
+    --ink-500: #55657f;
     --sky-500: #2f80ff;
-    --sky-600: #1b66d6;
-    --mint-500: #17b897;
+    --sky-600: #1e63cc;
+    --mint-500: #12b981;
     --amber-500: #f59e0b;
-    --surface-100: #f4f8ff;
-    --surface-200: #e6eefc;
-    --surface-300: #d8e4fb;
+    --surface-100: #f3f8ff;
+    --surface-200: #e4eefc;
+    --surface-300: #d5e3fb;
     --card: #ffffff;
-    --border: rgba(14, 38, 78, 0.12);
+    --border: rgba(14, 38, 78, 0.14);
     --shadow-sm: 0 6px 20px rgba(8, 26, 58, 0.08);
     --shadow-md: 0 20px 45px rgba(11, 23, 46, 0.15);
     --radius-md: 14px;
@@ -33,20 +33,20 @@ body {
     color: var(--ink-900);
     background:
         radial-gradient(circle at 5% 8%, rgba(75, 156, 255, 0.18), transparent 35%),
-        radial-gradient(circle at 88% 18%, rgba(23, 184, 151, 0.18), transparent 32%),
+        radial-gradient(circle at 88% 18%, rgba(18, 185, 129, 0.18), transparent 32%),
         linear-gradient(140deg, #eef4ff 0%, #f8fbff 45%, #f3fbfb 100%);
     line-height: 1.45;
     position: relative;
     overflow-x: hidden;
 }
 
-.ambient-shape {
+.ambient {
     position: fixed;
     z-index: 0;
     pointer-events: none;
 }
 
-.ambient-shape-one {
+.ambient-left {
     width: 260px;
     height: 260px;
     top: -60px;
@@ -56,13 +56,13 @@ body {
     filter: blur(3px);
 }
 
-.ambient-shape-two {
+.ambient-right {
     width: 340px;
     height: 340px;
     right: -130px;
     bottom: -120px;
     border-radius: 50% 50% 46% 54%;
-    background: linear-gradient(145deg, rgba(21, 182, 153, 0.2), rgba(47, 128, 255, 0.08));
+    background: linear-gradient(145deg, rgba(18, 185, 129, 0.2), rgba(47, 128, 255, 0.08));
     filter: blur(4px);
 }
 
@@ -104,14 +104,8 @@ body {
 
 .subtitle {
     color: #d8e8ff;
-    max-width: 62ch;
+    max-width: 70ch;
     font-size: 0.96rem;
-}
-
-.hero-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
 }
 
 .formula-toggle-btn {
@@ -131,20 +125,17 @@ body {
     transform: translateY(-1px);
 }
 
-main {
+.layout {
     margin-top: 1rem;
-}
-
-.content-grid {
     display: grid;
     grid-template-columns: 320px minmax(0, 1fr);
     gap: 1rem;
 }
 
 .control-panel,
-.canvas-container,
+.equation-panel,
 .results-panel,
-.education-section {
+.chart-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -159,12 +150,10 @@ main {
 }
 
 .control-panel h2,
-.results-panel h2,
-.canvas-container h2,
-.education-section h2 {
+.equation-panel h2,
+.results-panel h2 {
     font-family: 'Manrope', sans-serif;
     font-size: 1rem;
-    letter-spacing: -0.01em;
 }
 
 .panel-intro {
@@ -190,7 +179,7 @@ main {
 
 .input-row {
     display: grid;
-    grid-template-columns: 1fr 78px;
+    grid-template-columns: 1fr 84px;
     gap: 0.55rem;
 }
 
@@ -227,7 +216,6 @@ main {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
-    margin-top: 0.2rem;
 }
 
 .preset-btn,
@@ -245,7 +233,7 @@ main {
     border-color: var(--surface-300);
     color: var(--ink-700);
     padding: 0.46rem 0.3rem;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
 }
 
 .preset-btn:hover {
@@ -272,42 +260,28 @@ main {
     background: #d93838;
 }
 
-.visualization-panel {
+.visual-panel {
     display: grid;
     gap: 0.9rem;
 }
 
-.canvas-container {
-    padding: 0.92rem;
-}
-
-.panel-heading-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 0.55rem;
-}
-
-.canvas-note {
-    color: var(--ink-500);
-    font-size: 0.74rem;
-}
-
-canvas {
-    width: 100%;
-    min-height: 320px;
-    border-radius: 12px;
-    border: 1px solid var(--surface-300);
-    background: #ffffff;
-    display: block;
-}
-
-.results-panel {
+.equation-panel,
+.results-panel,
+.chart-card {
     padding: 0.95rem;
 }
 
-.results-panel h2 {
-    margin-bottom: 0.65rem;
+.equation {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--sky-600);
+}
+
+.substitution {
+    margin-top: 0.3rem;
+    color: var(--ink-700);
+    font-size: 0.9rem;
 }
 
 .result-grid {
@@ -321,12 +295,6 @@ canvas {
     background: linear-gradient(150deg, #fcfdff 0%, #f5f9ff 100%);
     border-radius: 12px;
     padding: 0.62rem 0.55rem;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.result-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(47, 128, 255, 0.4);
 }
 
 .result-label {
@@ -345,43 +313,25 @@ canvas {
     font-weight: 800;
 }
 
-.education-section {
-    margin-top: 0.95rem;
-    padding: 0.95rem;
-}
-
-.education-section h2 {
-    margin-bottom: 0.72rem;
-}
-
-.concepts {
+.chart-stack {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.6rem;
+    gap: 0.8rem;
 }
 
-.concept-card {
-    border: 1px solid var(--surface-300);
-    background: linear-gradient(155deg, #ffffff, #f8fbff);
-    border-radius: 12px;
-    padding: 0.72rem;
-    transition: transform 0.2s ease;
-}
-
-.concept-card:hover {
-    transform: translateY(-2px);
-}
-
-.concept-card h3 {
-    color: var(--ink-700);
-    font-size: 0.88rem;
-    margin-bottom: 0.32rem;
+.chart-card h3 {
     font-family: 'Manrope', sans-serif;
+    font-size: 0.9rem;
+    margin-bottom: 0.55rem;
+    color: var(--ink-700);
 }
 
-.concept-card p {
-    color: var(--ink-500);
-    font-size: 0.78rem;
+canvas {
+    width: 100%;
+    min-height: 180px;
+    border-radius: 10px;
+    border: 1px solid var(--surface-300);
+    background: #ffffff;
+    display: block;
 }
 
 footer {
@@ -494,7 +444,7 @@ footer a:hover {
 }
 
 @media (max-width: 1080px) {
-    .content-grid {
+    .layout {
         grid-template-columns: 1fr;
     }
 
@@ -503,18 +453,18 @@ footer a:hover {
     }
 }
 
-@media (max-width: 840px) {
+@media (max-width: 760px) {
     .hero {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .hero-actions {
-        justify-content: flex-start;
+    .result-grid {
+        grid-template-columns: 1fr;
     }
 
-    .concepts {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .preset-buttons {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -528,16 +478,8 @@ footer a:hover {
         padding: 1rem;
     }
 
-    .result-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .concepts {
-        grid-template-columns: 1fr;
-    }
-
-    .preset-buttons {
-        grid-template-columns: repeat(2, 1fr);
+    .input-row {
+        grid-template-columns: 1fr 76px;
     }
 
     .formula-sidebar {

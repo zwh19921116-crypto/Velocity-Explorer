@@ -3,154 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velocity Explorer - Physics Education Tool</title>
+    <title>Velocity Explorer - 1D Kinematics Lab</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="ambient-shape ambient-shape-one" aria-hidden="true"></div>
-    <div class="ambient-shape ambient-shape-two" aria-hidden="true"></div>
+    <div class="ambient ambient-left" aria-hidden="true"></div>
+    <div class="ambient ambient-right" aria-hidden="true"></div>
 
     <div class="container">
         <header class="hero">
             <div>
-                <p class="eyebrow">Physics Motion Studio</p>
+                <p class="eyebrow">Physics Kinematics Studio</p>
                 <h1>Velocity Explorer</h1>
-                <p class="subtitle">Experiment with launch conditions and instantly see projectile behavior, outcomes, and key formulas.</p>
+                <p class="subtitle">Explore 1D motion with the core equation v_f = v_i + at and see how position, velocity, and acceleration evolve over time.</p>
             </div>
-            <div class="hero-actions">
-                <button id="formulaToggle" class="formula-toggle-btn" aria-expanded="false" aria-controls="formulaSidebar">Open Formulas</button>
-            </div>
+            <button id="formulaToggle" class="formula-toggle-btn" aria-expanded="false" aria-controls="formulaSidebar">Open Formulas</button>
         </header>
 
-        <main>
-            <div class="content-grid">
-                <section class="control-panel">
-                    <h2>Parameters</h2>
-                    <p class="panel-intro">Use sliders or exact values to tune your launch setup.</p>
-                    
-                    <div class="control-group">
-                        <label for="initialVelocity">Initial Velocity (m/s)</label>
-                        <div class="input-row">
-                            <input type="range" id="initialVelocity" class="slider" min="0" max="50" value="20" step="0.1">
-                            <input type="number" id="initialVelocityInput" class="number-input" min="0" max="50" value="20" step="0.1">
+        <main class="layout">
+            <section class="control-panel">
+                <h2>Inputs</h2>
+                <p class="panel-intro">Adjust initial velocity, acceleration, and elapsed time.</p>
+
+                <div class="control-group">
+                    <label for="initialVelocity">Initial Velocity v_i (m/s)</label>
+                    <div class="input-row">
+                        <input type="range" id="initialVelocity" class="slider" min="-20" max="20" value="-0.5" step="0.1">
+                        <input type="number" id="initialVelocityInput" class="number-input" min="-20" max="20" value="-0.5" step="0.1">
+                    </div>
+                    <span class="unit-display" id="velocityDisplay">-0.5 m/s</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="acceleration">Acceleration a (m/s²)</label>
+                    <div class="input-row">
+                        <input type="range" id="acceleration" class="slider" min="-10" max="10" value="0.5" step="0.1">
+                        <input type="number" id="accelerationInput" class="number-input" min="-10" max="10" value="0.5" step="0.1">
+                    </div>
+                    <span class="unit-display" id="accelerationDisplay">0.5 m/s²</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="time">Time t (s)</label>
+                    <div class="input-row">
+                        <input type="range" id="time" class="slider" min="0" max="12" value="5" step="0.1">
+                        <input type="number" id="timeInput" class="number-input" min="0" max="12" value="5" step="0.1">
+                    </div>
+                    <span class="unit-display" id="timeDisplay">5.0 s</span>
+                </div>
+
+                <div class="preset-buttons">
+                    <button class="preset-btn" data-preset="uniform">Uniform</button>
+                    <button class="preset-btn" data-preset="speedup">Speed Up</button>
+                    <button class="preset-btn" data-preset="braking">Braking</button>
+                </div>
+
+                <button id="resetBtn" class="reset-btn">Reset Defaults</button>
+            </section>
+
+            <section class="visual-panel">
+                <div class="equation-panel">
+                    <h2>Equation</h2>
+                    <p class="equation">v_f = v_i + at</p>
+                    <p id="substitutionText" class="substitution">v_f = (-0.5) + (0.5)(5.0) = 2.00 m/s</p>
+                </div>
+
+                <div class="results-panel">
+                    <h2>Results</h2>
+                    <div class="result-grid">
+                        <div class="result-card">
+                            <div class="result-label">Final Velocity v_f</div>
+                            <div class="result-value" id="finalVelocity">2.00 m/s</div>
                         </div>
-                        <span class="unit-display" id="velocityDisplay">20 m/s</span>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="angle">Launch Angle (degrees)</label>
-                        <div class="input-row">
-                            <input type="range" id="angle" class="slider" min="0" max="90" value="45" step="0.1">
-                            <input type="number" id="angleInput" class="number-input" min="0" max="90" value="45" step="0.1">
+                        <div class="result-card">
+                            <div class="result-label">Displacement x</div>
+                            <div class="result-value" id="displacement">3.75 m</div>
                         </div>
-                        <span class="unit-display" id="angleDisplay">45°</span>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="gravity">Gravity (m/s²)</label>
-                        <div class="input-row">
-                            <input type="range" id="gravity" class="slider" min="1" max="30" value="9.8" step="0.01">
-                            <input type="number" id="gravityInput" class="number-input" min="1" max="30" value="9.8" step="0.01">
-                        </div>
-                        <span class="unit-display" id="gravityDisplay">9.8 m/s²</span>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="height">Initial Height (m)</label>
-                        <div class="input-row">
-                            <input type="range" id="height" class="slider" min="0" max="100" value="0" step="0.1">
-                            <input type="number" id="heightInput" class="number-input" min="0" max="100" value="0" step="0.1">
-                        </div>
-                        <span class="unit-display" id="heightDisplay">0 m</span>
-                    </div>
-
-                    <div class="preset-buttons">
-                        <button class="preset-btn" data-preset="earth">Earth</button>
-                        <button class="preset-btn" data-preset="moon">Moon</button>
-                        <button class="preset-btn" data-preset="mars">Mars</button>
-                    </div>
-
-                    <button id="resetBtn" class="reset-btn">Reset to Defaults</button>
-                </section>
-
-                <section class="visualization-panel">
-                    <div class="canvas-container">
-                        <div class="panel-heading-row">
-                            <h2>Trajectory</h2>
-                            <span class="canvas-note">Live simulation</span>
-                        </div>
-                        <canvas id="trajectoryCanvas" width="500" height="400"></canvas>
-                    </div>
-
-                    <div class="results-panel">
-                        <h2>Results</h2>
-                        <div class="result-grid">
-                            <div class="result-card">
-                                <div class="result-label">Horizontal Velocity</div>
-                                <div class="result-value" id="horizontalVelocity">0 m/s</div>
-                            </div>
-                            <div class="result-card">
-                                <div class="result-label">Vertical Velocity</div>
-                                <div class="result-value" id="verticalVelocity">0 m/s</div>
-                            </div>
-                            <div class="result-card">
-                                <div class="result-label">Max Height</div>
-                                <div class="result-value" id="maxHeight">0 m</div>
-                            </div>
-                            <div class="result-card">
-                                <div class="result-label">Range (Distance)</div>
-                                <div class="result-value" id="range">0 m</div>
-                            </div>
-                            <div class="result-card">
-                                <div class="result-label">Time of Flight</div>
-                                <div class="result-value" id="timeOfFlight">0 s</div>
-                            </div>
-                            <div class="result-card">
-                                <div class="result-label">Impact Velocity</div>
-                                <div class="result-value" id="impactVelocity">0 m/s</div>
-                            </div>
+                        <div class="result-card">
+                            <div class="result-label">Average Velocity</div>
+                            <div class="result-value" id="averageVelocity">0.75 m/s</div>
                         </div>
                     </div>
-                </section>
-            </div>
+                </div>
 
-            <section class="education-section">
-                <h2>Concept Snapshot</h2>
-                <div class="concepts">
-                    <div class="concept-card">
-                        <h3>What is Velocity?</h3>
-                        <p>Velocity is a vector quantity that describes both the speed and direction of an object's motion. Unlike speed, which is scalar, velocity changes when either magnitude or direction changes.</p>
+                <div class="chart-stack">
+                    <div class="chart-card">
+                        <h3>x(t)</h3>
+                        <canvas id="positionCanvas" width="860" height="220"></canvas>
                     </div>
-                    <div class="concept-card">
-                        <h3>Projectile Motion</h3>
-                        <p>When an object is launched at an angle, it follows a curved path called a parabola. The motion can be separated into horizontal (constant) and vertical (accelerated) components.</p>
+                    <div class="chart-card">
+                        <h3>v(t)</h3>
+                        <canvas id="velocityCanvas" width="860" height="220"></canvas>
                     </div>
-                    <div class="concept-card">
-                        <h3>Horizontal Component</h3>
-                        <p>The horizontal velocity remains constant throughout the flight (ignoring air resistance) because there's no horizontal force acting on the object.</p>
-                    </div>
-                    <div class="concept-card">
-                        <h3>Vertical Component</h3>
-                        <p>The vertical velocity changes due to gravity's acceleration. It decreases on the way up, becomes zero at maximum height, and increases (downward) on the way down.</p>
-                    </div>
-                    <div class="concept-card">
-                        <h3>Launch Angle Effect</h3>
-                        <p>A 45° angle provides the maximum range on level ground. Angles less than 45° travel less distance but land sooner. Angles greater than 45° reach higher but travel less horizontal distance.</p>
-                    </div>
-                    <div class="concept-card">
-                        <h3>Gravity's Role</h3>
-                        <p>Different celestial bodies have different gravitational accelerations. Try Earth (9.8 m/s²), Moon (1.62 m/s²), or Mars (3.7 m/s²) to see how it affects the trajectory!</p>
+                    <div class="chart-card">
+                        <h3>a(t)</h3>
+                        <canvas id="accelerationCanvas" width="860" height="220"></canvas>
                     </div>
                 </div>
             </section>
         </main>
 
         <footer>
-            <p>Velocity Explorer v1.0 | Educational Physics Tool</p>
-            <p>By <a href="https://github.com/zwh19921116-crypto" target="_blank">Physics Education Team</a></p>
+            <p>Velocity Explorer v2.0 | 1D Kinematics Learning Tool</p>
+            <p>By <a href="https://github.com/zwh19921116-crypto" target="_blank" rel="noreferrer">Physics Education Team</a></p>
         </footer>
     </div>
 
@@ -159,34 +117,26 @@
         <div class="formula-sidebar-header">
             <div>
                 <p class="formula-kicker">Reference</p>
-                <h3>Formulas Used</h3>
+                <h3>Kinematics Formulas</h3>
             </div>
             <button id="formulaClose" class="formula-close-btn" aria-label="Close formulas panel">Close</button>
         </div>
         <div class="formula-sidebar-body">
             <div class="formula">
-                <strong>Horizontal Velocity</strong>
-                <p>v<sub>x</sub> = v<sub>0</sub> &times; cos(&theta;)</p>
+                <strong>Final Velocity</strong>
+                <p>v_f = v_i + at</p>
             </div>
             <div class="formula">
-                <strong>Vertical Velocity</strong>
-                <p>v<sub>y</sub> = v<sub>0</sub> &times; sin(&theta;)</p>
+                <strong>Displacement</strong>
+                <p>x = v_i t + 0.5 a t^2</p>
             </div>
             <div class="formula">
-                <strong>Maximum Height</strong>
-                <p>h<sub>max</sub> = h<sub>0</sub> + v<sub>y</sub><sup>2</sup> / (2g)</p>
+                <strong>Average Velocity</strong>
+                <p>v_avg = (v_i + v_f) / 2</p>
             </div>
             <div class="formula">
-                <strong>Range</strong>
-                <p>R = v<sub>x</sub> &times; t<sub>flight</sub></p>
-            </div>
-            <div class="formula">
-                <strong>Time of Flight</strong>
-                <p>t = (v<sub>y</sub> + &radic;(v<sub>y</sub><sup>2</sup> + 2gh<sub>0</sub>)) / g</p>
-            </div>
-            <div class="formula">
-                <strong>Impact Speed</strong>
-                <p>v = &radic;(v<sub>x</sub><sup>2</sup> + v<sub>y,impact</sub><sup>2</sup>)</p>
+                <strong>Position Function</strong>
+                <p>x(t) = x_0 + v_i t + 0.5 a t^2</p>
             </div>
         </div>
     </aside>

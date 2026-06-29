@@ -428,7 +428,7 @@ class VelocityExplorer {
         this.averageVelocity.textContent = `${vAvg.toFixed(2)} m/s`;
         this.substitutionText.textContent = `v_f = (${vi.toFixed(1)}) + (${a.toFixed(1)})(${t.toFixed(1)}) = ${vf.toFixed(2)} m/s`;
         this.playheadDisplay.textContent = `t = ${t.toFixed(2)} s (target ${targetTime.toFixed(1)} s)`;
-        this.directionState.textContent = vf > 0 ? 'Positive' : vf < 0 ? 'Negative' : 'At Rest';
+        this.directionState.textContent = vf > 0 ? 'Positive' : vf < 0 ? 'Negative' : 'Zero';
         this.slopeInsight.textContent = a > 0
             ? 'Positive acceleration means v(t) slopes upward.'
             : a < 0

@@ -137,6 +137,7 @@ body {
 .results-panel,
 .motion-panel,
 .insight-panel,
+.practice-panel,
 .chart-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -271,6 +272,7 @@ body {
 .results-panel,
 .motion-panel,
 .insight-panel,
+.practice-panel,
 .chart-card {
     padding: 0.95rem;
 }
@@ -337,6 +339,20 @@ body {
     gap: 0.55rem;
 }
 
+.compare-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-bottom: 0.6rem;
+}
+
+.compare-status {
+    color: var(--ink-500);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
 .result-card {
     border: 1px solid var(--surface-300);
     background: linear-gradient(150deg, #fcfdff 0%, #f5f9ff 100%);
@@ -388,6 +404,43 @@ body {
     font-weight: 600;
 }
 
+.practice-question {
+    margin-top: 0.15rem;
+    color: var(--ink-700);
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.practice-actions {
+    margin-top: 0.55rem;
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.answer-btn {
+    border: 1px solid var(--surface-300);
+    background: #ffffff;
+    color: var(--ink-700);
+    border-radius: 9px;
+    padding: 0.42rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.answer-btn:hover {
+    border-color: var(--sky-500);
+    color: var(--sky-600);
+}
+
+.practice-feedback {
+    margin-top: 0.48rem;
+    color: var(--ink-500);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
 .chart-stack {
     display: grid;
     gap: 0.8rem;
@@ -433,6 +486,46 @@ footer a:hover {
     background: rgba(8, 15, 30, 0.45);
     backdrop-filter: blur(2px);
     z-index: 45;
+}
+
+.tour-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 15, 30, 0.56);
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+}
+
+.tour-card {
+    width: min(540px, 100%);
+    background: #ffffff;
+    border: 1px solid var(--surface-300);
+    border-radius: 14px;
+    padding: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.tour-card h2 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.12rem;
+    margin-bottom: 0.35rem;
+}
+
+.tour-card p {
+    color: var(--ink-700);
+    font-size: 0.88rem;
+}
+
+.tour-card ol {
+    margin: 0.6rem 0 0.75rem 1rem;
+    color: var(--ink-700);
+    font-size: 0.86rem;
+}
+
+.tour-card li {
+    margin-bottom: 0.25rem;
 }
 
 .formula-sidebar {
@@ -540,6 +633,10 @@ footer a:hover {
 
     .insight-grid {
         grid-template-columns: 1fr;
+    }
+
+    .compare-controls {
+        align-items: stretch;
     }
 
     .preset-buttons {

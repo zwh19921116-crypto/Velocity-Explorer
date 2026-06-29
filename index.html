@@ -73,6 +73,9 @@
                         <button id="playBtn" class="anim-btn">Play</button>
                         <button id="pauseBtn" class="anim-btn">Pause</button>
                         <button id="replayBtn" class="anim-btn">Replay</button>
+                        <button id="stepBackBtn" class="anim-btn">-0.1 s</button>
+                        <button id="stepForwardBtn" class="anim-btn">+0.1 s</button>
+                        <button id="stepBigBtn" class="anim-btn">+1.0 s</button>
                     </div>
                     <p id="playheadDisplay" class="playhead">t = 5.00 s</p>
                 </div>
@@ -85,6 +88,11 @@
 
                 <div class="results-panel">
                     <h2>Results</h2>
+                    <div class="compare-controls">
+                        <button id="captureRunBtn" class="anim-btn">Capture Run A</button>
+                        <button id="clearRunBtn" class="anim-btn">Clear Run A</button>
+                        <span id="compareStatus" class="compare-status">No comparison run stored.</span>
+                    </div>
                     <div class="result-grid">
                         <div class="result-card">
                             <div class="result-label">Final Velocity v_f</div>
@@ -103,6 +111,18 @@
                             <div class="result-value" id="directionState">Positive</div>
                         </div>
                     </div>
+                </div>
+
+                <div class="practice-panel">
+                    <h2>Practice Check</h2>
+                    <p id="practiceQuestion" class="practice-question">Press "New Question" to start a quick check.</p>
+                    <div class="practice-actions">
+                        <button id="newQuestionBtn" class="anim-btn">New Question</button>
+                        <button class="answer-btn" data-answer="positive">Positive</button>
+                        <button class="answer-btn" data-answer="negative">Negative</button>
+                        <button class="answer-btn" data-answer="zero">Zero</button>
+                    </div>
+                    <p id="practiceFeedback" class="practice-feedback">No answer submitted yet.</p>
                 </div>
 
                 <div class="insight-panel">
@@ -143,6 +163,19 @@
     </div>
 
     <div id="formulaOverlay" class="formula-overlay" hidden></div>
+    <div id="tourOverlay" class="tour-overlay" hidden>
+        <div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+            <h2 id="tourTitle">Welcome to Velocity Explorer</h2>
+            <p>Use this quick map before you begin:</p>
+            <ol>
+                <li>Set v_i, a, and time with sliders.</li>
+                <li>Use Play and Step buttons to inspect how velocity changes.</li>
+                <li>Read v(t) graph slope and zero crossing to understand direction changes.</li>
+            </ol>
+            <button id="tourCloseBtn" class="anim-btn">Start Learning</button>
+        </div>
+    </div>
+
     <aside id="formulaSidebar" class="formula-sidebar" aria-hidden="true">
         <div class="formula-sidebar-header">
             <div>

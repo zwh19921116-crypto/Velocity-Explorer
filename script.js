@@ -28,6 +28,9 @@ class VelocityExplorer {
         this.slopeInsight = document.getElementById('slopeInsight');
         this.zeroCrossingInsight = document.getElementById('zeroCrossingInsight');
         this.playheadDisplay = document.getElementById('playheadDisplay');
+        this.compareStatus = document.getElementById('compareStatus');
+        this.practiceQuestion = document.getElementById('practiceQuestion');
+        this.practiceFeedback = document.getElementById('practiceFeedback');
 
         this.motionCanvas = document.getElementById('motionCanvas');
         this.positionCanvas = document.getElementById('positionCanvas');
@@ -38,12 +41,21 @@ class VelocityExplorer {
         this.playBtn = document.getElementById('playBtn');
         this.pauseBtn = document.getElementById('pauseBtn');
         this.replayBtn = document.getElementById('replayBtn');
+        this.stepBackBtn = document.getElementById('stepBackBtn');
+        this.stepForwardBtn = document.getElementById('stepForwardBtn');
+        this.stepBigBtn = document.getElementById('stepBigBtn');
+        this.captureRunBtn = document.getElementById('captureRunBtn');
+        this.clearRunBtn = document.getElementById('clearRunBtn');
+        this.newQuestionBtn = document.getElementById('newQuestionBtn');
+        this.answerBtns = document.querySelectorAll('.answer-btn');
         this.presetBtns = document.querySelectorAll('.preset-btn');
 
         this.formulaToggle = document.getElementById('formulaToggle');
         this.formulaClose = document.getElementById('formulaClose');
         this.formulaSidebar = document.getElementById('formulaSidebar');
         this.formulaOverlay = document.getElementById('formulaOverlay');
+        this.tourOverlay = document.getElementById('tourOverlay');
+        this.tourCloseBtn = document.getElementById('tourCloseBtn');
 
         this.presets = {
             uniform: { acceleration: 0.0 },
@@ -55,6 +67,9 @@ class VelocityExplorer {
         this.isAnimating = false;
         this.animationFrameId = null;
         this.lastTimestamp = null;
+        this.followTargetWhenIdle = true;
+        this.compareSnapshot = null;
+        this.currentQuestion = null;
     }
 
     initializeEventListeners() {
@@ -78,6 +93,36 @@ class VelocityExplorer {
 
         if (this.replayBtn) {
             this.replayBtn.addEventListener('click', () => this.startAnimation(true));
+        }
+
+        if (this.stepBackBtn) {
+            this.stepBackBtn.addEventListener('click', () => this.stepTime(-0.1));
+        }
+
+        if (this.stepForwardBtn) {
+            this.stepForwardBtn.addEventListener('click', () => this.stepTime(0.1));
+        }
+
+        if (this.stepBigBtn) {
+            this.stepBigBtn.addEventListener('click', () => this.stepTime(1.0));
+        }
+
+        if (this.captureRunBtn) {
+            this.captureRunBtn.addEventListener('click', () => this.captureComparisonRun());
+        }
+
+        if (this.clearRunBtn) {
+            this.clearRunBtn.addEventListener('click', () => this.clearComparisonRun());
+        }
+
+        if (this.newQuestionBtn) {
+            this.newQuestionBtn.addEventListener('click', () => this.generatePracticeQuestion());
+        }
+
+        if (this.answerBtns && this.answerBtns.length > 0) {
+            this.answerBtns.forEach((btn) => {
+                btn.addEventListener('click', () => this.checkPracticeAnswer(btn.dataset.answer));
+            });
         }
 
         this.presetBtns.forEach((btn) => {
@@ -105,6 +150,10 @@ class VelocityExplorer {
             this.formulaOverlay.addEventListener('click', () => this.closeFormulaSidebar());
         }
 
+        if (this.tourCloseBtn) {
+            this.tourCloseBtn.addEventListener('click', () => this.closeTour());
+        }
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.closeFormulaSidebar();
@@ -124,6 +173,7 @@ class VelocityExplorer {
     syncFromSlider(key, rawValue) {
         const value = parseFloat(rawValue);
         this.pauseAnimation();
+        this.followTargetWhenIdle = true;
 
         if (key === 'initialVelocity') {
             this.initialVelocityInput.value = value;
@@ -139,6 +189,7 @@ class VelocityExplorer {
     syncFromInput(key, rawValue) {
         const value = parseFloat(rawValue) || 0;
         this.pauseAnimation();
+        this.followTargetWhenIdle = true;
 
         if (key === 'initialVelocity') {
             const clamped = this.clamp(value, -20, 20);
@@ -180,6 +231,7 @@ class VelocityExplorer {
         });
 
         this.updateDisplay();
+        this.followTargetWhenIdle = true;
         this.calculate();
     }
 
@@ -216,6 +268,14 @@ class VelocityExplorer {
         }
     }
 
+    stepTime(delta) {
+        this.pauseAnimation();
+        this.followTargetWhenIdle = false;
+        const maxTime = parseFloat(this.time.value);
+        this.playheadTime = this.clamp(this.playheadTime + delta, 0, maxTime);
+        this.calculate();
+    }
+
     startAnimation(fromStart) {
         const targetTime = parseFloat(this.time.value);
         if (targetTime <= 0) {
@@ -228,6 +288,7 @@ class VelocityExplorer {
             this.playheadTime = 0;
         }
 
+        this.followTargetWhenIdle = false;
         this.isAnimating = true;
         this.lastTimestamp = null;
         this.updateAnimationButtons();
@@ -285,11 +346,84 @@ class VelocityExplorer {
         this.time.value = 5;
         this.timeInput.value = 5;
         this.playheadTime = 5;
+        this.followTargetWhenIdle = true;
 
         this.presetBtns.forEach((btn) => btn.classList.remove('active'));
         this.loadPresets();
         this.updateDisplay();
         this.calculate();
+        this.generatePracticeQuestion();
+    }
+
+    captureComparisonRun() {
+        this.compareSnapshot = {
+            vi: parseFloat(this.initialVelocity.value),
+            a: parseFloat(this.acceleration.value),
+            t: parseFloat(this.time.value)
+        };
+        this.compareStatus.textContent = `Run A stored: v_i=${this.compareSnapshot.vi.toFixed(1)}, a=${this.compareSnapshot.a.toFixed(1)}, t=${this.compareSnapshot.t.toFixed(1)}.`;
+        this.calculate();
+    }
+
+    clearComparisonRun() {
+        this.compareSnapshot = null;
+        this.compareStatus.textContent = 'No comparison run stored.';
+        this.calculate();
+    }
+
+    generatePracticeQuestion() {
+        const vi = parseFloat(this.initialVelocity.value);
+        const a = parseFloat(this.acceleration.value);
+        const t = parseFloat(this.time.value);
+        const vf = vi + a * t;
+
+        const bank = [
+            {
+                prompt: `At t = ${t.toFixed(1)} s, what is the sign of final velocity v_f?`,
+                answer: vf > 0 ? 'positive' : vf < 0 ? 'negative' : 'zero'
+            },
+            {
+                prompt: 'What is the sign of acceleration a?',
+                answer: a > 0 ? 'positive' : a < 0 ? 'negative' : 'zero'
+            },
+            {
+                prompt: `At the current playhead t = ${this.playheadTime.toFixed(1)} s, what is the sign of velocity v(t)?`,
+                answer: (vi + a * this.playheadTime) > 0 ? 'positive' : (vi + a * this.playheadTime) < 0 ? 'negative' : 'zero'
+            }
+        ];
+
+        const selected = bank[Math.floor(Math.random() * bank.length)];
+        this.currentQuestion = selected;
+        this.practiceQuestion.textContent = selected.prompt;
+        this.practiceFeedback.textContent = 'Choose an answer: Positive, Negative, or Zero.';
+    }
+
+    checkPracticeAnswer(choice) {
+        if (!this.currentQuestion) {
+            this.practiceFeedback.textContent = 'Generate a question first.';
+            return;
+        }
+
+        if (choice === this.currentQuestion.answer) {
+            this.practiceFeedback.textContent = 'Correct. Great work!';
+            return;
+        }
+
+        this.practiceFeedback.textContent = `Not yet. Correct answer: ${this.currentQuestion.answer}.`;
+    }
+
+    showTourIfNeeded() {
+        const viewed = localStorage.getItem('velocityExplorerTourSeen');
+        if (viewed) {
+            this.tourOverlay.hidden = true;
+            return;
+        }
+        this.tourOverlay.hidden = false;
+    }
+
+    closeTour() {
+        this.tourOverlay.hidden = true;
+        localStorage.setItem('velocityExplorerTourSeen', 'true');
     }
 
     calculate() {
@@ -297,7 +431,7 @@ class VelocityExplorer {
         const a = parseFloat(this.acceleration.value);
         const targetTime = parseFloat(this.time.value);
 
-        if (!this.isAnimating) {
+        if (!this.isAnimating && this.followTargetWhenIdle) {
             this.playheadTime = targetTime;
         }
 
@@ -325,7 +459,7 @@ class VelocityExplorer {
             : 'No direction change in this displayed time window.';
 
         this.drawMotionStrip(vi, a, t, targetTime);
-        this.drawAllGraphs(vi, a, t, zeroCrossingTime);
+        this.drawAllGraphs(vi, a, t, zeroCrossingTime, targetTime);
     }
 
     drawMotionStrip(vi, a, tCurrent, tMaxInput) {
@@ -417,8 +551,8 @@ class VelocityExplorer {
         ctx.fill();
     }
 
-    drawAllGraphs(vi, a, tCurrent, zeroCrossingTime) {
-        const tMax = Math.max(1, tCurrent);
+    drawAllGraphs(vi, a, tCurrent, zeroCrossingTime, targetTime) {
+        const tMax = Math.max(1, targetTime);
         const points = 90;
         const tSeries = Array.from({ length: points + 1 }, (_, i) => (i / points) * tMax);
 
@@ -449,6 +583,18 @@ class VelocityExplorer {
             zeroCrossingTime
         });
 
+        if (this.compareSnapshot) {
+            const compareTSeries = Array.from({ length: points + 1 }, (_, i) => (i / points) * tMax);
+            const compareVSeries = compareTSeries.map((tau) => this.compareSnapshot.vi + this.compareSnapshot.a * tau);
+            this.drawComparisonOverlay(this.velocityCanvas, {
+                tMax,
+                tSeries: compareTSeries,
+                series: compareVSeries,
+                color: '#7c3aed',
+                range: { min: -150, max: 150 }
+            });
+        }
+
         this.drawGraph(this.accelerationCanvas, {
             label: 'a (m/s²)',
             color: '#12b981',
@@ -459,6 +605,38 @@ class VelocityExplorer {
             tSeries,
             fixedRange: { min: -10, max: 10 }
         });
+    }
+
+    drawComparisonOverlay(canvas, config) {
+        const ctx = canvas.getContext('2d');
+        const displayWidth = canvas.clientWidth;
+        const displayHeight = canvas.clientHeight;
+        const margin = { left: 58, right: 16, top: 14, bottom: 34 };
+        const width = displayWidth - margin.left - margin.right;
+        const height = displayHeight - margin.top - margin.bottom;
+
+        const minV = config.range.min;
+        const maxV = config.range.max;
+        const mapX = (t) => margin.left + (t / config.tMax) * width;
+        const mapY = (v) => margin.top + ((maxV - v) / (maxV - minV || 1)) * height;
+
+        ctx.save();
+        ctx.strokeStyle = config.color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        config.series.forEach((value, i) => {
+            const x = mapX(config.tSeries[i]);
+            const y = mapY(value);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = config.color;
+        ctx.font = '11px Arial';
+        ctx.fillText('Run A', margin.left + 6, margin.top + 12);
+        ctx.restore();
     }
 
     drawGraph(canvas, config) {
@@ -584,5 +762,7 @@ class VelocityExplorer {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new VelocityExplorer();
+    const app = new VelocityExplorer();
+    app.generatePracticeQuestion();
+    app.showTourIfNeeded();
 });
